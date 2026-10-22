@@ -4,6 +4,8 @@ import { saveProfile, useProfile, type Profile } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { VoiceStudio } from "@/components/VoiceStudio";
+import { vibrateNo, vibrateOk } from "@/lib/haptics";
 
 export const Route = createFileRoute("/orangtua")({
   head: () => ({
@@ -133,6 +135,24 @@ function Settings({ profile }: { profile: Profile }) {
             </li>
           ))}
         </ul>
+      </section>
+
+      <VoiceStudio stories={f.stories} />
+
+      <section className="space-y-3 rounded-3xl bg-card p-5">
+        <h2 className="text-xl">📳 Getaran</h2>
+        <p className="text-sm text-muted-foreground">
+          Jawaban benar bergetar tiga denyut pendek, jawaban salah bergetar satu kali panjang. Hanya berfungsi di
+          Android, dan HP harus mengaktifkan getaran sentuhan di pengaturannya.
+        </p>
+        <label className="flex items-center gap-3">
+          <input type="checkbox" className="h-5 w-5" checked={f.haptics !== false} onChange={(e) => save({ haptics: e.target.checked })} />
+          <span>Aktifkan getaran</span>
+        </label>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={vibrateOk}>Tes: benar</Button>
+          <Button variant="outline" onClick={vibrateNo}>Tes: salah</Button>
+        </div>
       </section>
 
       <section className="space-y-3 rounded-3xl bg-card p-5">
