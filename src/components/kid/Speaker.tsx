@@ -56,7 +56,7 @@ export function Instruction({ text }: { text: string }) {
   );
 }
 
-const PRAISE = ["Hebat!", "Pintar sekali!", "Benar!", "Keren!", "Bagus sekali!"];
+export const PRAISE = ["Hebat!", "Pintar sekali!", "Benar!", "Keren!", "Bagus sekali!"];
 export const praise = () => speakAsync(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
