@@ -4,6 +4,7 @@ import { saveProfile, useProfile, type Profile } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { VoiceStudio } from "@/components/VoiceStudio";
 
 export const Route = createFileRoute("/orangtua")({
   head: () => ({
@@ -134,6 +135,8 @@ function Settings({ profile }: { profile: Profile }) {
           ))}
         </ul>
       </section>
+
+      <VoiceStudio stories={f.stories} />
 
       <section className="space-y-3 rounded-3xl bg-card p-5">
         <h2 className="text-xl">Keamanan & Progres</h2>
