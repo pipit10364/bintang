@@ -1,7 +1,9 @@
 export type Activity =
   | { type: "tap"; prompt: string; options: string[]; answer: string }
   | { type: "drag"; prompt: string; item: string; target: string; distractor?: string }
-  | { type: "choose"; prompt: string; options: string[]; answer: string };
+  | { type: "choose"; prompt: string; options: string[]; answer: string }
+  | { type: "count"; prompt: string; items: string[] }
+  | { type: "sort"; prompt: string; item: string; good: { emoji: string; label: string }; bad: { emoji: string; label: string } };
 
 export type StoryPage = { scene: string; text: string; activity?: Activity };
 export type Story = {
@@ -125,7 +127,13 @@ export const STORIES: Story[] = [
       {
         scene: "👧🤔👵",
         text: "Rani melihat seorang nenek yang sedang bingung mencari sesuatu.",
-        activity: { type: "drag", prompt: "Bantu Rani mengembalikan dompet ke nenek!", item: "👛", target: "👵", distractor: "🗑️" },
+        activity: {
+          type: "sort",
+          prompt: "Bantu Rani memilah: ke mana dompet itu diserahkan?",
+          item: "👛",
+          good: { emoji: "👵", label: "Kembalikan ke Nenek" },
+          bad: { emoji: "🗑️", label: "Dibuang" },
+        },
       },
       {
         scene: "👵😊👧",
@@ -216,7 +224,13 @@ export const STORIES: Story[] = [
       {
         scene: "👧🍬🗑️",
         text: "Sinta selesai makan permen. Bungkusnya mau dibuang ke mana?",
-        activity: { type: "drag", prompt: "Tarik bungkus ke tempat sampah!", item: "🍬", target: "🗑️", distractor: "🌊" },
+        activity: {
+          type: "sort",
+          prompt: "Pilah bungkus permen ke tempat yang benar!",
+          item: "🍬",
+          good: { emoji: "🗑️", label: "Tempat sampah" },
+          bad: { emoji: "🌊", label: "Sungai" },
+        },
       },
       {
         scene: "🌊🗑️🐟",
@@ -326,7 +340,7 @@ export const STORIES: Story[] = [
       {
         scene: "🐘🐘🐘",
         text: "Gajah hidup berkelompok bersama keluarganya. Gajah kecil dijaga oleh gajah besar.",
-        activity: { type: "choose", prompt: "Ada berapa gajah?", options: ["2", "3", "4"], answer: "3" },
+        activity: { type: "count", prompt: "Ayo hitung gajahnya satu per satu!", items: ["🐘", "🐘", "🐘"] },
       },
     ],
   },
@@ -398,7 +412,7 @@ export const STORIES: Story[] = [
       {
         scene: "🐦🐦🐦🐦",
         text: "Burung berkicau di pagi hari. Cip cip cip! Burung hidup bersama teman temannya.",
-        activity: { type: "choose", prompt: "Ada berapa burung?", options: ["3", "4", "5"], answer: "4" },
+        activity: { type: "count", prompt: "Ayo hitung burungnya satu per satu!", items: ["🐦", "🐦", "🐦", "🐦"] },
       },
     ],
   },
@@ -561,7 +575,13 @@ export const STORIES: Story[] = [
       {
         scene: "🚢🌊",
         text: "Kapal berlayar di laut. Pesawat terbang di langit.",
-        activity: { type: "drag", prompt: "Tarik kapal ke laut!", item: "🚢", target: "🌊", distractor: "☁️" },
+        activity: {
+          type: "sort",
+          prompt: "Pilah kapal ke tempat yang benar!",
+          item: "🚢",
+          good: { emoji: "🌊", label: "Laut" },
+          bad: { emoji: "☁️", label: "Langit" },
+        },
       },
       {
         scene: "🚆🛤️",
