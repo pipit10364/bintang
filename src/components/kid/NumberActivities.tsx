@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { speak, speakAsync } from "@/lib/speech";
 import { cn } from "@/lib/utils";
 import { COUNT_ITEMS, EN_WORDS, ID_WORDS } from "@/data/numbers";
-import { Instruction, praiseThen, tryAgain } from "./Speaker";
+import { Instruction, praiseThen, tryAgain, useGateReady, WRONG_PAUSE_MS } from "./Speaker";
 
 const bigBtn = "rounded-3xl shadow-[0_6px_0_var(--border)] active:translate-y-1 active:shadow-none transition";
 const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
@@ -37,12 +37,12 @@ export function NumberIntro({ d, onDone }: { d: number; onDone: () => void }) {
   return (
     <div className="space-y-5">
       <Instruction text={text} />
-      <div className="flex items-center justify-center gap-6">
-        <div className="font-display text-[9rem] leading-none text-ink">{d}</div>
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+        <div className="font-display text-[7rem] leading-none text-ink sm:text-[9rem]">{d}</div>
         <button
           type="button"
           onClick={() => speak(EN_WORDS[d], { lang: "en-US" })}
-          className={cn(bigBtn, "bg-sky px-5 py-3 font-display text-2xl")}
+          className={cn(bigBtn, "bg-sky px-4 py-2 font-display text-xl sm:px-5 sm:py-3 sm:text-2xl")}
         >
           🇬🇧 {EN_WORDS[d]}
         </button>
@@ -59,13 +59,13 @@ export function NumberIntro({ d, onDone }: { d: number; onDone: () => void }) {
               type="button"
               onClick={() => tap(k)}
               className={cn(
-                "relative flex h-20 w-20 items-center justify-center rounded-3xl bg-card text-5xl",
+                "relative flex h-18 w-18 items-center justify-center rounded-3xl bg-card text-4xl sm:h-20 sm:w-20 sm:text-5xl",
                 tapped.includes(k) && "ring-4 ring-success",
               )}
             >
               {item.emoji}
               {tapped.includes(k) && (
-                <span className="absolute -right-1 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-success font-display text-lg text-primary-foreground">
+                <span className="absolute -top-2 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-success font-display text-lg text-primary-foreground">
                   {tapped.indexOf(k) + 1}
                 </span>
               )}
@@ -89,7 +89,7 @@ export function NumberIntro({ d, onDone }: { d: number; onDone: () => void }) {
 }
 
 /* ---------- 2. Ada berapa? (hitung gambar, pilih angka) ---------- */
-export function NumberCountStep({ d, onDone }: { d: number; onDone: () => void }) {
+export function NumberCountStep({ d, onDone }: { d: number; onDone: (perfect?: boolean) => void }) {
   const rounds = useMemo(() => {
     const others = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter((n) => n !== d)).slice(0, 2);
     return [d, ...others].map((n) => ({ n, item: pickItem(), options: numberOptions(n, 0, 10) }));
@@ -97,46 +97,55 @@ export function NumberCountStep({ d, onDone }: { d: number; onDone: () => void }
   const [i, setI] = useState(0);
   const [wrong, setWrong] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
+  const [perfect, setPerfect] = useState(true);
+  const ready = useGateReady();
   const r = rounds[i];
   const text = r.n === 0 ? `Keranjang ini kosong. Ada berapa ${r.item.name}?` : `Ada berapa ${r.item.name}? Ayo hitung!`;
 
   const answer = (n: number) => {
-    if (locked) return;
+    if (locked || !ready) return;
     if (n === r.n) {
       setLocked(true);
       setWrong(null);
       praiseThen(() => {
         setLocked(false);
         if (i + 1 < rounds.length) setI(i + 1);
-        else onDone();
+        else onDone(perfect);
       });
     } else {
+      setPerfect(false);
       setWrong(n);
+      setLocked(true);
       tryAgain();
+      setTimeout(() => {
+        setWrong(null);
+        setLocked(false);
+      }, WRONG_PAUSE_MS);
     }
   };
 
   return (
     <div className="space-y-5">
       <Instruction key={i} text={text} />
-      <div className="flex min-h-40 flex-wrap items-center justify-center gap-2 rounded-[2rem] bg-butter/50 p-6 text-5xl">
+      <div className="flex min-h-36 flex-wrap items-center justify-center gap-2 rounded-[2rem] bg-butter/50 p-4 text-4xl sm:min-h-40 sm:p-6 sm:text-5xl">
         {r.n === 0 ? (
           <span className="text-7xl">🧺</span>
         ) : (
           Array.from({ length: r.n }, (_, k) => <span key={k}>{r.item.emoji}</span>)
         )}
       </div>
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-4">
         {r.options.map((n) => (
           <button
             key={n}
             type="button"
-            disabled={locked}
+            disabled={locked || !ready}
             onClick={() => answer(n)}
             className={cn(
               bigBtn,
-              "h-28 w-28 font-display text-6xl",
+              "h-24 w-24 font-display text-5xl sm:h-28 sm:w-28 sm:text-6xl",
               wrong === n ? "bg-rose" : locked && n === r.n ? "bg-mint" : "bg-card",
+              (locked || !ready) && n !== r.n && "opacity-60",
             )}
           >
             {n}
@@ -167,21 +176,23 @@ export function NumberTakeStep({ d, onDone }: { d: number; onDone: () => void })
   return (
     <div className="space-y-5">
       <Instruction text={`Ambil ${ID_WORDS[d]} ${item.name} ke keranjang. Ketuk satu per satu ya!`} />
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-5 gap-2 sm:gap-3">
         {taken.map((t, k) => (
           <button
             key={k}
             type="button"
             onClick={() => tap(k)}
-            className={cn("flex aspect-square items-center justify-center rounded-3xl bg-card text-5xl", t && "opacity-20")}
+            className={cn("flex aspect-square items-center justify-center rounded-3xl bg-card text-4xl sm:text-5xl", t && "opacity-20")}
           >
             {item.emoji}
           </button>
         ))}
       </div>
       <div className="rounded-[2rem] bg-mint/60 p-4">
-        <div className="font-display text-2xl">🧺 {count} / {d}</div>
-        <div className="mt-2 flex min-h-16 flex-wrap gap-1 text-4xl">
+        <div className="font-display text-2xl">
+          🧺 {count} / {d}
+        </div>
+        <div className="mt-2 flex min-h-14 flex-wrap gap-1 text-3xl sm:min-h-16 sm:text-4xl">
           {Array.from({ length: count }, (_, k) => (
             <span key={k}>{item.emoji}</span>
           ))}
@@ -215,26 +226,34 @@ function makeQuiz(d: number): Q[] {
   return [q1, q2, q3];
 }
 
-export function NumberQuizStep({ d, onDone }: { d: number; onDone: () => void }) {
+export function NumberQuizStep({ d, onDone }: { d: number; onDone: (perfect?: boolean) => void }) {
   const qs = useMemo(() => makeQuiz(d), [d]);
   const [i, setI] = useState(0);
   const [wrong, setWrong] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [perfect, setPerfect] = useState(true);
+  const ready = useGateReady();
   const q = qs[i];
 
   const answer = (o: string) => {
-    if (locked) return;
+    if (locked || !ready) return;
     if (o === q.answer) {
       setLocked(true);
       setWrong(null);
       praiseThen(() => {
         setLocked(false);
         if (i + 1 < qs.length) setI(i + 1);
-        else onDone();
+        else onDone(perfect);
       });
     } else {
+      setPerfect(false);
       setWrong(o);
+      setLocked(true);
       tryAgain();
+      setTimeout(() => {
+        setWrong(null);
+        setLocked(false);
+      }, WRONG_PAUSE_MS);
     }
   };
 
@@ -246,13 +265,14 @@ export function NumberQuizStep({ d, onDone }: { d: number; onDone: () => void })
           <button
             key={o}
             type="button"
-            disabled={locked}
+            disabled={locked || !ready}
             onClick={() => answer(o)}
             className={cn(
               bigBtn,
               "flex items-center justify-center break-all p-3",
-              q.group ? "min-h-32 text-4xl" : "h-28 font-display text-6xl",
+              q.group ? "min-h-28 text-3xl sm:min-h-32 sm:text-4xl" : "h-24 font-display text-5xl sm:h-28 sm:text-6xl",
               wrong === o ? "bg-rose" : locked && o === q.answer ? "bg-mint" : "bg-card",
+              (locked || !ready) && o !== q.answer && "opacity-60",
             )}
           >
             {o}

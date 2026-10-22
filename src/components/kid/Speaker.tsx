@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Volume2 } from "lucide-react";
-import { speak, speakAsync, stopSpeaking } from "@/lib/speech";
+import { speak, speakAsync, stopSpeaking, subscribeSpeaking } from "@/lib/speech";
 import { vibrateNo, vibrateOk } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
@@ -9,11 +9,13 @@ export function SpeakerButton({
   lang = "id-ID",
   size = "lg",
   className,
+  active,
 }: {
   text: string;
   lang?: "id-ID" | "en-US";
   size?: "md" | "lg";
   className?: string;
+  active?: boolean;
 }) {
   return (
     <button
@@ -26,6 +28,7 @@ export function SpeakerButton({
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-full bg-butter text-foreground shadow-[0_6px_0_var(--border)] transition active:translate-y-1 active:shadow-none",
         size === "lg" ? "h-20 w-20" : "h-14 w-14",
+        active && "animate-pulse ring-4 ring-butter/70",
         className,
       )}
     >
@@ -46,13 +49,37 @@ export function useAutoSpeak(text: string | undefined, lang: "id-ID" | "en-US" =
   }, [text, lang]);
 }
 
+/**
+ * Gerbang anti asal tebak: `true` hanya setelah instruksi selesai dibacakan.
+ * Tombol pilihan jawaban boleh diketuk lagi setelah gerbang terbuka.
+ */
+export function useGateReady() {
+  const [state, setState] = useState({ spoken: false, speaking: false });
+  useEffect(() => {
+    const un = subscribeSpeaking((v) =>
+      setState((s) => ({ spoken: s.spoken || v, speaking: v })),
+    );
+    // Cadangan: kalau mesin suara tidak tersedia sama sekali, buka gerbang setelah 4 detik.
+    const fb = setTimeout(
+      () => setState((s) => (s.spoken ? s : { ...s, spoken: true })),
+      4000,
+    );
+    return () => {
+      un();
+      clearTimeout(fb);
+    };
+  }, []);
+  return state.spoken && !state.speaking;
+}
+
 /** Instruction bar: big speaker + prompt, auto-played. */
-export function Instruction({ text }: { text: string }) {
-  useAutoSpeak(text);
+export function Instruction({ text, lang = "id-ID" as "id-ID" | "en-US" }: { text: string; lang?: "id-ID" | "en-US" }) {
+  useAutoSpeak(text, lang);
+  const ready = useGateReady();
   return (
     <div className="flex items-center gap-4 rounded-3xl bg-card p-3 shadow-sm">
-      <SpeakerButton text={text} />
-      <p className="font-display text-xl text-foreground md:text-2xl">{text}</p>
+      <SpeakerButton text={text} lang={lang} active={!ready} />
+      <p className="min-w-0 font-display text-lg break-words text-foreground md:text-2xl">{text}</p>
     </div>
   );
 }
@@ -73,3 +100,6 @@ export const tryAgain = () => {
   vibrateNo();
   speak("Hmm, coba lagi ya!");
 };
+
+/** Jeda lembut setelah jawaban salah: tombol terkunci sebentar, tanpa tekanan. */
+export const WRONG_PAUSE_MS = 1400;
