@@ -142,8 +142,8 @@ function Settings({ profile }: { profile: Profile }) {
           <Input inputMode="numeric" maxLength={6} value={f.pin} onChange={(e) => setF({ ...f, pin: e.target.value.replace(/\D/g, "") })} />
         </label>
         <Button onClick={() => save({ pin: f.pin })}>Simpan PIN</Button>
-        <p className="text-sm">⭐ {f.stars} bintang · 🏅 {f.stickers.length}/26 huruf selesai</p>
-        <Button variant="outline" onClick={() => confirm("Reset bintang dan stiker?") && save({ stars: 0, stickers: [] })}>Reset progres</Button>
+        <p className="text-sm">⭐ {f.stars} bintang · 🏅 {f.stickers.length}/26 huruf · 🔢 {(f.numbers ?? []).length}/10 angka selesai</p>
+        <Button variant="outline" onClick={() => confirm("Reset bintang dan stiker?") && save({ stars: 0, stickers: [], numbers: [] })}>Reset progres</Button>
       </section>
 
       <section className="space-y-2 rounded-3xl bg-butter/50 p-5 text-sm">

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { LETTERS } from "@/data/letters";
+import { DIGITS, ID_WORDS, keycap } from "@/data/numbers";
 import { useProfile } from "@/lib/store";
 import { speak } from "@/lib/speech";
 import { SpeakerButton } from "@/components/kid/Speaker";
@@ -23,7 +24,7 @@ const TILE = ["bg-peach", "bg-mint", "bg-sky", "bg-lilac", "bg-butter", "bg-rose
 function Home() {
   const { profile } = useProfile();
   const [started, setStarted] = useState(false);
-  const hello = `Halo${profile.childName ? " " + profile.childName : ""}! Ayo belajar. Pilih satu huruf ya.`;
+  const hello = `Halo${profile.childName ? " " + profile.childName : ""}! Ayo belajar. Pilih satu huruf atau angka ya.`;
 
   const start = () => {
     setStarted(true);
@@ -97,12 +98,36 @@ function Home() {
         })}
       </div>
 
-      {profile.stickers.length > 0 && (
+      <section className="mt-8">
+        <h2 className="mb-3 text-2xl">🔢 Belajar Angka</h2>
+        <div className="grid grid-cols-5 gap-3">
+          {DIGITS.map((d, i) => (
+            <Link
+              key={d}
+              to="/angka/$digit"
+              params={{ digit: String(d) }}
+              onClick={() => speak(`Angka ${ID_WORDS[d]}`)}
+              className={cn(
+                "relative flex aspect-square items-center justify-center rounded-3xl shadow-[0_6px_0_var(--border)] active:translate-y-1 active:shadow-none",
+                TILE[(i + 2) % TILE.length],
+              )}
+            >
+              <span className="font-display text-5xl text-foreground">{d}</span>
+              {profile.numbers.includes(d) && <span className="absolute -right-1 -top-2 text-2xl">⭐</span>}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {(profile.stickers.length > 0 || profile.numbers.length > 0) && (
         <section className="mt-8 rounded-3xl bg-card p-5">
           <h2 className="text-2xl">🏅 Buku Stikerku</h2>
           <div className="mt-3 flex flex-wrap gap-2 text-5xl">
             {profile.stickers.map((s) => (
               <span key={s} title={s}>{LETTERS.find((l) => l.letter === s)?.words[0].emoji}</span>
+            ))}
+            {profile.numbers.map((n) => (
+              <span key={`n${n}`} title={`Angka ${n}`}>{keycap(n)}</span>
             ))}
           </div>
         </section>
