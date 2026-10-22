@@ -12,6 +12,7 @@ export type Profile = {
   pin: string;
   stars: number;
   stickers: string[]; // completed letters
+  numbers: number[]; // completed digits
 };
 
 const KEY = "belajar-ceria-profile-v1";
@@ -25,6 +26,7 @@ export const defaultProfile: Profile = {
   pin: "",
   stars: 0,
   stickers: [],
+  numbers: [],
 };
 
 const listeners = new Set<(p: Profile) => void>();
