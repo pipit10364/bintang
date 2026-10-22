@@ -46,33 +46,33 @@
 
 :root {
   --radius: 1.25rem;
-  --background: oklch(0.975 0.015 80);
+  --background: oklch(0.98 0.012 80);
   --foreground: oklch(0.36 0.04 50);
-  --card: oklch(0.995 0.006 85);
+  --card: oklch(0.995 0.005 85);
   --card-foreground: oklch(0.36 0.04 50);
-  --popover: oklch(0.995 0.006 85);
+  --popover: oklch(0.995 0.005 85);
   --popover-foreground: oklch(0.36 0.04 50);
-  --primary: oklch(0.72 0.11 40);
+  --primary: oklch(0.74 0.09 40);
   --primary-foreground: oklch(0.99 0.01 80);
-  --secondary: oklch(0.93 0.04 160);
+  --secondary: oklch(0.93 0.035 160);
   --secondary-foreground: oklch(0.36 0.05 160);
-  --muted: oklch(0.94 0.02 80);
+  --muted: oklch(0.94 0.018 80);
   --muted-foreground: oklch(0.55 0.03 60);
-  --accent: oklch(0.92 0.05 300);
+  --accent: oklch(0.92 0.04 300);
   --accent-foreground: oklch(0.38 0.06 300);
   --destructive: oklch(0.68 0.14 20);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.025 70);
-  --input: oklch(0.9 0.025 70);
-  --ring: oklch(0.72 0.11 40);
-  --peach: oklch(0.88 0.07 45);
-  --mint: oklch(0.9 0.07 165);
-  --sky: oklch(0.89 0.06 230);
-  --lilac: oklch(0.88 0.06 300);
-  --butter: oklch(0.94 0.09 95);
-  --rose: oklch(0.88 0.07 10);
-  --success: oklch(0.72 0.13 155);
-  --guide: oklch(0.88 0.02 70);
+  --border: oklch(0.9 0.02 70);
+  --input: oklch(0.9 0.02 70);
+  --ring: oklch(0.74 0.09 40);
+  --peach: oklch(0.9 0.055 45);
+  --mint: oklch(0.92 0.055 165);
+  --sky: oklch(0.91 0.045 230);
+  --lilac: oklch(0.9 0.045 300);
+  --butter: oklch(0.95 0.07 95);
+  --rose: oklch(0.9 0.055 10);
+  --success: oklch(0.74 0.11 155);
+  --guide: oklch(0.89 0.018 70);
   --ink: oklch(0.68 0.13 25);
 }
 
@@ -128,3 +128,7 @@
 @utility animate-wiggle { animation: wiggle 0.5s ease-in-out 2; }
 @utility animate-float { animation: float 3s ease-in-out infinite; }
 @utility animate-confetti { animation: confetti-fall linear forwards; }
+
+/* Aman dari notch/bilah sistem di HP (mode layar penuh / PWA). */
+@utility pt-safe { padding-top: max(0.5rem, env(safe-area-inset-top, 0px)); }
+@utility pb-safe { padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px)); }
