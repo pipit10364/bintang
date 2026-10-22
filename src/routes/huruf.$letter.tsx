@@ -6,6 +6,7 @@ import { addStars, saveProfile, useProfile } from "@/lib/store";
 import { KidPage } from "@/components/kid/TopBar";
 import { StoryReader } from "@/components/kid/Story";
 import { AssessmentStep, ConfusableStep, DetectiveStep, MathStep, TraceStep } from "@/components/kid/Activities";
+import { SpellingStep } from "@/components/kid/Spelling";
 import { Celebration } from "@/components/kid/Celebration";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/huruf/$letter")({
 });
 
 const STEP_ICON: Record<string, string> = {
-  story: "📖", trace: "✏️", twin: "🔁", detective: "🔎", math: "🔢", quiz: "🧠",
+  story: "📖", trace: "✏️", twin: "🔁", eja: "🔤", detective: "🔎", math: "🔢", quiz: "🧠",
 };
 
 function LetterModule() {
@@ -36,18 +37,19 @@ function LetterModule() {
   const index = LETTERS.findIndex((l) => l.letter === letter);
   const story = storyForLetter(index);
   const group = confusableGroupOf(letter);
-  const steps = ["story", "trace", ...(group ? ["twin"] : []), "detective", "math", "quiz"];
+  const steps = ["story", "trace", ...(group ? ["twin"] : []), "eja", "detective", "math", "quiz"];
   const [step, setStep] = useState(0);
-  const [celebrate, setCelebrate] = useState<null | "step" | "final">(null);
+  const [celebrate, setCelebrate] = useState<null | { kind: "step" | "final"; perfect: boolean }>(null);
   const { profile } = useProfile();
   const navigate = useNavigate();
 
-  const next = () => {
-    addStars(1);
+  const next = (perfect = true) => {
+    // Reward penuh untuk anak yang benar di percobaan pertama.
+    addStars(perfect ? 2 : 1);
     if (step + 1 >= steps.length) {
       saveProfile((p) => ({ stickers: p.stickers.includes(letter) ? p.stickers : [...p.stickers, letter], stars: p.stars + 2 }));
-      setCelebrate("final");
-    } else setCelebrate("step");
+      setCelebrate({ kind: "final", perfect });
+    } else setCelebrate({ kind: "step", perfect });
   };
 
   const cur = steps[step];
@@ -71,17 +73,22 @@ function LetterModule() {
         {cur === "story" && <StoryReader title={story.title} pages={story.pages} onDone={next} />}
         {cur === "trace" && <TraceStep letter={letter} onDone={next} />}
         {cur === "twin" && group && <ConfusableStep group={group} onDone={next} />}
+        {cur === "eja" && <SpellingStep letter={letter} words={data.words} onDone={next} />}
         {cur === "detective" && <DetectiveStep data={data} onDone={next} />}
         {cur === "math" && <MathStep emoji={data.words[0].emoji} onDone={next} />}
         {cur === "quiz" && <AssessmentStep profile={profile} onDone={next} />}
       </div>
 
-      {celebrate === "step" && (
-        <Celebration stars={1} message="Hebat! Kamu dapat bintang!" onClose={() => { setCelebrate(null); setStep(step + 1); }} />
-      )}
-      {celebrate === "final" && (
+      {celebrate?.kind === "step" && (
         <Celebration
-          stars={3}
+          stars={celebrate.perfect ? 2 : 1}
+          message={celebrate.perfect ? "Luar biasa! Benar di percobaan pertama. Dua bintang untukmu!" : "Hebat! Kamu dapat bintang!"}
+          onClose={() => { setCelebrate(null); setStep(step + 1); }}
+        />
+      )}
+      {celebrate?.kind === "final" && (
+        <Celebration
+          stars={celebrate.perfect ? 4 : 3}
           sticker={data.words[0].emoji}
           message={`Hore! Huruf ${letter} selesai. Kamu dapat stiker baru!`}
           onClose={() => navigate({ to: "/" })}

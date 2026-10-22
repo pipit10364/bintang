@@ -40,7 +40,7 @@ function Shelf() {
   if (open)
     return (
       <KidPage>
-        <StoryReader title={open.title} pages={open.pages} onDone={() => { addStars(2); setWin(true); }} />
+        <StoryReader title={open.title} pages={open.pages} onDone={(perfect = true) => { addStars(perfect ? 3 : 2); setWin(true); }} />
         {win && <Celebration stars={2} message="Hore! Ceritanya selesai!" onClose={() => { setWin(false); setOpen(null); }} />}
       </KidPage>
     );

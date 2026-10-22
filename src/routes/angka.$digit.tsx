@@ -41,18 +41,19 @@ function DigitModule() {
   const { digit: d } = Route.useLoaderData();
   const steps = d === 0 ? ["kenal", "trace", "hitung", "kuis"] : ["kenal", "trace", "hitung", "ambil", "kuis"];
   const [step, setStep] = useState(0);
-  const [celebrate, setCelebrate] = useState<null | "step" | "final">(null);
+  const [celebrate, setCelebrate] = useState<null | { kind: "step" | "final"; perfect: boolean }>(null);
   const navigate = useNavigate();
 
-  const next = () => {
-    addStars(1);
+  const next = (perfect = true) => {
+    // Reward penuh untuk anak yang benar di percobaan pertama.
+    addStars(perfect ? 2 : 1);
     if (step + 1 >= steps.length) {
       saveProfile((p) => ({
         numbers: p.numbers.includes(d) ? p.numbers : [...p.numbers, d],
         stars: p.stars + 2,
       }));
-      setCelebrate("final");
-    } else setCelebrate("step");
+      setCelebrate({ kind: "final", perfect });
+    } else setCelebrate({ kind: "step", perfect });
   };
 
   const cur = steps[step];
@@ -80,12 +81,16 @@ function DigitModule() {
         {cur === "kuis" && <NumberQuizStep d={d} onDone={next} />}
       </div>
 
-      {celebrate === "step" && (
-        <Celebration stars={1} message="Hebat! Kamu dapat bintang!" onClose={() => { setCelebrate(null); setStep(step + 1); }} />
-      )}
-      {celebrate === "final" && (
+      {celebrate?.kind === "step" && (
         <Celebration
-          stars={3}
+          stars={celebrate.perfect ? 2 : 1}
+          message={celebrate.perfect ? "Luar biasa! Benar di percobaan pertama. Dua bintang untukmu!" : "Hebat! Kamu dapat bintang!"}
+          onClose={() => { setCelebrate(null); setStep(step + 1); }}
+        />
+      )}
+      {celebrate?.kind === "final" && (
+        <Celebration
+          stars={celebrate.perfect ? 4 : 3}
           sticker={keycap(d)}
           message={`Hore! Angka ${ID_WORDS[d]} selesai. Kamu dapat stiker baru!`}
           onClose={() => navigate({ to: "/" })}

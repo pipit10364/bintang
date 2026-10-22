@@ -60,6 +60,8 @@ function Settings({ profile }: { profile: Profile }) {
   const [saved, setSaved] = useState(false);
   const [rel, setRel] = useState("");
   const [name, setName] = useState("");
+  const [specName, setSpecName] = useState("");
+  const [specEmoji, setSpecEmoji] = useState("😊");
   const [title, setTitle] = useState("");
   const [emoji, setEmoji] = useState("💖");
   const [body, setBody] = useState("");
@@ -106,6 +108,35 @@ function Settings({ profile }: { profile: Profile }) {
           <Input placeholder="Hubungan (kakak, nenek…)" value={rel} onChange={(e) => setRel(e.target.value)} className="flex-1" />
           <Input placeholder="Nama" value={name} onChange={(e) => setName(e.target.value)} className="flex-1" />
           <Button disabled={!rel.trim() || !name.trim()} onClick={() => { save({ family: [...f.family, { relation: rel.trim().toLowerCase(), name: name.trim() }] }); setRel(""); setName(""); }}>Tambah</Button>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-3xl bg-card p-5">
+        <h2 className="text-xl">⭐ Benda Khusus Anak</h2>
+        <p className="text-sm text-muted-foreground">
+          Mainan kesayangan, hewan peliharaan, atau benda spesial lain. Dipakai di kuis "mana benda kesayanganmu?".
+        </p>
+        <ul className="space-y-2">
+          {f.specials?.map((s, i) => (
+            <li key={i} className="flex items-center justify-between rounded-xl bg-muted px-3 py-2">
+              <span>{s.emoji} {s.name}</span>
+              <Button variant="ghost" size="sm" onClick={() => save({ specials: (f.specials ?? []).filter((_, j) => j !== i) })}>Hapus</Button>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-wrap gap-2">
+          <Input placeholder="😊" value={specEmoji} onChange={(e) => setSpecEmoji(e.target.value)} className="w-20 text-center text-2xl" />
+          <Input placeholder="Nama benda (mis. boneka Bruno)" value={specName} onChange={(e) => setSpecName(e.target.value)} className="flex-1" />
+          <Button
+            disabled={!specName.trim()}
+            onClick={() => {
+              save({ specials: [...(f.specials ?? []), { name: specName.trim(), emoji: specEmoji.trim() || "⭐" }] });
+              setSpecName("");
+              setSpecEmoji("😊");
+            }}
+          >
+            Tambah
+          </Button>
         </div>
       </section>
 

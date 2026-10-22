@@ -46,7 +46,7 @@ function Twins() {
   return (
     <KidPage title={grp.join(" ")}>
       {phase === "play" ? (
-        <ConfusableStep group={grp} onDone={() => { addStars(1); setPhase("trace"); }} />
+        <ConfusableStep group={grp} onDone={(perfect = true) => { addStars(perfect ? 2 : 1); setPhase("trace"); }} />
       ) : (
         <div className="flex flex-col items-center gap-4">
           <Instruction key={t} text={`Sekarang tulis huruf ${grp[t]}. Mulai dari titik hijau.`} />
