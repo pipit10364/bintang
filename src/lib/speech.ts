@@ -48,9 +48,35 @@ export function stopSpeaking() {
   stopAudio();
 }
 
+/* ---------- Gerbang jawaban: terkunci selama ada suara dibacakan ---------- */
+let speaking = false;
+const gateSubs = new Set<(v: boolean) => void>();
+export const isSpeaking = () => speaking;
+export function subscribeSpeaking(fn: (v: boolean) => void) {
+  gateSubs.add(fn);
+  return () => {
+    gateSubs.delete(fn);
+  };
+}
+let speakGen = 0;
+function beginSpeak() {
+  speakGen++;
+  if (!speaking) {
+    speaking = true;
+    gateSubs.forEach((f) => f(true));
+  }
+  return speakGen;
+}
+function endSpeak(g: number) {
+  if (g !== speakGen || !speaking) return;
+  speaking = false;
+  gateSubs.forEach((f) => f(false));
+}
+
 /** Putar rekaman suara ayah/ibu, dengan sorotan kata (perkiraan menurut panjang kata). */
 function playClip(text: string, clip: ClipInfo, opts: SpeakOptions) {
   stopSpeaking();
+  const g = beginSpeak();
   const audio = new Audio(clip.url);
   currentAudio = audio;
 
@@ -69,6 +95,7 @@ function playClip(text: string, clip: ClipInfo, opts: SpeakOptions) {
       currentAudio = null;
       currentFinish = null;
     }
+    endSpeak(g);
     opts.onWord?.(-1);
     opts.onEnd?.();
   };
@@ -113,6 +140,7 @@ export function speak(text: string, opts: SpeakOptions = {}) {
     return;
   }
   stopSpeaking();
+  const g = beginSpeak();
   const lang = opts.lang ?? "id-ID";
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang;
@@ -154,6 +182,7 @@ export function speak(text: string, opts: SpeakOptions = {}) {
   };
   u.onend = () => {
     if (fallbackTimer) clearInterval(fallbackTimer);
+    endSpeak(g);
     opts.onWord?.(-1);
     opts.onEnd?.();
   };

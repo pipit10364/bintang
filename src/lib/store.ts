@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 
 export type FamilyMember = { name: string; relation: string };
 export type CustomStory = { id: string; title: string; emoji: string; pages: string[] };
+export type SpecialItem = { name: string; emoji: string };
 
 export type Profile = {
   childName: string;
   fatherName: string;
   motherName: string;
   family: FamilyMember[];
+  specials: SpecialItem[];
   stories: CustomStory[];
   pin: string;
   stars: number;
@@ -23,6 +25,7 @@ export const defaultProfile: Profile = {
   fatherName: "",
   motherName: "",
   family: [],
+  specials: [],
   stories: [],
   pin: "",
   stars: 0,
