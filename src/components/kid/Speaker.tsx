@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Volume2 } from "lucide-react";
 import { speak, speakAsync, stopSpeaking } from "@/lib/speech";
+import { vibrateNo, vibrateOk } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
 export function SpeakerButton({
@@ -57,7 +58,10 @@ export function Instruction({ text }: { text: string }) {
 }
 
 export const PRAISE = ["Hebat!", "Pintar sekali!", "Benar!", "Keren!", "Bagus sekali!"];
-export const praise = () => speakAsync(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
+export const praise = () => {
+  vibrateOk();
+  return speakAsync(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
+};
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -65,4 +69,7 @@ const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 export const praiseThen = (next: () => void) => {
   Promise.all([Promise.race([praise(), wait(3000)]), wait(700)]).then(() => setTimeout(next, 250));
 };
-export const tryAgain = () => speak("Hmm, coba lagi ya!");
+export const tryAgain = () => {
+  vibrateNo();
+  speak("Hmm, coba lagi ya!");
+};

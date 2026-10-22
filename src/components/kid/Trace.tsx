@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { speak } from "@/lib/speech";
 import { praiseThen } from "./Speaker";
+import { vibrateTick } from "@/lib/haptics";
 
 type Pt = { x: number; y: number };
 
@@ -66,6 +67,7 @@ export function TraceLetter({ strokes, onDone }: { strokes: string[]; onDone: ()
           setProgress(next);
           praiseThen(onDone);
         } else {
+          vibrateTick();
           speak("Bagus! Sekarang garis berikutnya.");
           setStroke(stroke + 1);
           setProgress(0);

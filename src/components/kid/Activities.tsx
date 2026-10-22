@@ -5,6 +5,8 @@ import type { Profile } from "@/lib/store";
 import { Instruction, praiseThen, tryAgain } from "./Speaker";
 import { TraceLetter } from "./Trace";
 import { LOWER, UPPER } from "@/data/strokes";
+import { QUIZ_BANK, markSeen, pickQuestions, type QuizQ } from "@/data/quiz";
+import { vibrateNo, vibrateOk } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
 const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
@@ -81,6 +83,7 @@ export function ConfusableStep({ group, onDone }: { group: readonly string[]; on
                 praiseThen(() => (r + 1 < rounds.length ? setR(r + 1) : onDone()));
               } else {
                 setWrong(l);
+                vibrateNo();
                 speak(`Itu huruf ${l}. ${CONFUSABLE_TIPS[target].hint}`);
                 setTimeout(() => setWrong(null), 900);
               }
@@ -153,10 +156,12 @@ export function DetectiveStep({ data, onDone }: { data: Letter; onDone: () => vo
                 if (w.id[0].toUpperCase() === data.letter) {
                   const nf = [...found, w.id];
                   setFound(nf);
+                  vibrateOk();
                   speak(`${w.id}! Berawalan ${data.letter}.`);
                   if (nf.length >= goal) setTimeout(() => praiseThen(() => setPhase("read")), 1500);
                 } else {
                   setWrong(w.id);
+                  vibrateNo();
                   speak(`${w.id}. Itu berawalan ${w.id[0]}.`);
                   setTimeout(() => setWrong(null), 900);
                 }
@@ -241,33 +246,26 @@ export function MathStep({ emoji, onDone }: { emoji: string; onDone: () => void 
 }
 
 /* ---------- Asesmen masuk SD ---------- */
-type Q = { prompt: string; options: string[]; answer: string; visual?: string };
+type Q = QuizQ;
 
 export function buildAssessment(p: Profile): Q[] {
   const decoyNames = ["Budi", "Siti", "Andi", "Rina", "Joko", "Maya"];
-  const pool: Q[] = [];
-  const nameOpts = (real: string) => shuffle([real, ...shuffle(decoyNames.filter((n) => n !== real)).slice(0, 2)]);
-  if (p.childName) pool.push({ prompt: "Mana namamu? Ketuk namamu ya.", options: nameOpts(p.childName), answer: p.childName });
-  if (p.motherName) pool.push({ prompt: "Siapa nama ibumu?", options: nameOpts(p.motherName), answer: p.motherName });
-  if (p.fatherName) pool.push({ prompt: "Siapa nama ayahmu?", options: nameOpts(p.fatherName), answer: p.fatherName });
-  pool.push(
-    { prompt: "Panah mana yang menunjuk ke kanan?", options: ["⬅️", "➡️", "⬆️"], answer: "➡️" },
-    { prompt: "Panah mana yang menunjuk ke atas?", options: ["⬇️", "➡️", "⬆️"], answer: "⬆️" },
-    { prompt: "Kucing ada di bawah kursi. Mana gambarnya?", options: ["🐱\n🪑", "🪑\n🐱"], answer: "🪑\n🐱" },
-    { prompt: "Mana yang berbeda?", options: ["🍎", "🍎", "🚗", "🍎"].map((x, i) => x + "\u200b".repeat(i)), answer: "🚗\u200b\u200b" },
-    { prompt: "Apa yang datang berikutnya? Merah, biru, merah, biru, ...", visual: "🔴🔵🔴🔵❓", options: ["🔴", "🟢", "🟡"], answer: "🔴" },
-    { prompt: "Mana yang lebih banyak?", options: ["⭐⭐", "⭐⭐⭐⭐⭐"], answer: "⭐⭐⭐⭐⭐" },
-    { prompt: "Kita makan pakai apa?", options: ["🥄", "🧦", "🔨"], answer: "🥄" },
-    { prompt: "Mana hewan yang bisa terbang?", options: ["🐘", "🐦", "🐟"], answer: "🐦" },
-    { prompt: "Kapan kita tidur? Ketuk gambar malam.", options: ["☀️", "🌙"], answer: "🌙" },
-    { prompt: "Mana bentuk lingkaran?", options: ["🔺", "🟦", "⚪"], answer: "⚪" },
-  );
-  p.family.forEach((f) => pool.push({ prompt: `Siapa nama ${f.relation}mu?`, options: nameOpts(f.name), answer: f.name }));
-  return shuffle(pool).slice(0, 3);
+  const nameOpts = (real: string) => [real, ...shuffle(decoyNames.filter((n) => n !== real)).slice(0, 2)];
+  const personal: Q[] = [];
+  const add = (id: string, prompt: string, name: string) =>
+    personal.push({ id, cat: "keluarga", prompt, options: nameOpts(name), answer: name });
+  if (p.childName) add("p-anak", "Mana namamu? Ketuk namamu ya.", p.childName);
+  if (p.motherName) add("p-ibu", "Siapa nama ibumu?", p.motherName);
+  if (p.fatherName) add("p-ayah", "Siapa nama ayahmu?", p.fatherName);
+  p.family.forEach((f, k) => add(`p-kel-${k}-${f.relation}`, `Siapa nama ${f.relation}mu?`, f.name));
+  // Soal dipilih dari bank besar: yang belum pernah keluar didahulukan, kategori berbeda-beda.
+  return pickQuestions([...QUIZ_BANK, ...personal], 3).map((x) => ({ ...x, options: shuffle(x.options) }));
 }
 
 export function AssessmentStep({ profile, onDone }: { profile: Profile; onDone: () => void }) {
-  const qs = useMemo(() => buildAssessment(profile), [profile]);
+  // Dibuat sekali saat langkah dimulai. Jangan dibuat ulang saat bintang bertambah
+  // (itu yang membuat soal lain terbaca padahal layar sudah selesai).
+  const [qs] = useState(() => buildAssessment(profile));
   const [i, setI] = useState(0);
   const [wrong, setWrong] = useState<string | null>(null);
   const q = qs[i];
@@ -282,6 +280,7 @@ export function AssessmentStep({ profile, onDone }: { profile: Profile; onDone: 
             key={o}
             onClick={() => {
               if (o === q.answer) {
+                markSeen(q.id);
                 praiseThen(() => (i + 1 < qs.length ? setI(i + 1) : onDone()));
               } else {
                 setWrong(o);
