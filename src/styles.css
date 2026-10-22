@@ -1,0 +1,130 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Nunito", "Noto Color Emoji", ui-rounded, system-ui, sans-serif;
+  --font-display: "Fredoka", "Noto Color Emoji", ui-rounded, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-peach: var(--peach);
+  --color-mint: var(--mint);
+  --color-sky: var(--sky);
+  --color-lilac: var(--lilac);
+  --color-butter: var(--butter);
+  --color-rose: var(--rose);
+  --color-success: var(--success);
+  --color-guide: var(--guide);
+  --color-ink: var(--ink);
+}
+
+:root {
+  --radius: 1.25rem;
+  --background: oklch(0.975 0.015 80);
+  --foreground: oklch(0.36 0.04 50);
+  --card: oklch(0.995 0.006 85);
+  --card-foreground: oklch(0.36 0.04 50);
+  --popover: oklch(0.995 0.006 85);
+  --popover-foreground: oklch(0.36 0.04 50);
+  --primary: oklch(0.72 0.11 40);
+  --primary-foreground: oklch(0.99 0.01 80);
+  --secondary: oklch(0.93 0.04 160);
+  --secondary-foreground: oklch(0.36 0.05 160);
+  --muted: oklch(0.94 0.02 80);
+  --muted-foreground: oklch(0.55 0.03 60);
+  --accent: oklch(0.92 0.05 300);
+  --accent-foreground: oklch(0.38 0.06 300);
+  --destructive: oklch(0.68 0.14 20);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.025 70);
+  --input: oklch(0.9 0.025 70);
+  --ring: oklch(0.72 0.11 40);
+  --peach: oklch(0.88 0.07 45);
+  --mint: oklch(0.9 0.07 165);
+  --sky: oklch(0.89 0.06 230);
+  --lilac: oklch(0.88 0.06 300);
+  --butter: oklch(0.94 0.09 95);
+  --rose: oklch(0.88 0.07 10);
+  --success: oklch(0.72 0.13 155);
+  --guide: oklch(0.88 0.02 70);
+  --ink: oklch(0.68 0.13 25);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    overscroll-behavior: none;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.8; }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@utility animate-pop { animation: pop-in 0.5s ease-out both; }
+@utility animate-wiggle { animation: wiggle 0.5s ease-in-out 2; }
+@utility animate-float { animation: float 3s ease-in-out infinite; }
+@utility animate-confetti { animation: confetti-fall linear forwards; }
