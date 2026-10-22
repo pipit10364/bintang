@@ -306,6 +306,294 @@ export const STORIES: Story[] = [
       },
     ],
   },
+  {
+    id: "gajah",
+    title: "Mengenal Gajah",
+    topic: "Mengenal Hewan",
+    emoji: "🐘",
+    level: 1,
+    pages: [
+      {
+        scene: "🐘🌳",
+        text: "Gajah adalah hewan darat yang sangat besar. Badannya berwarna abu abu.",
+        activity: { type: "tap", prompt: "Ketuk si Gajah!", options: ["🐘", "🐇", "🐦"], answer: "🐘" },
+      },
+      {
+        scene: "🐘🌿💧",
+        text: "Gajah punya belalai yang panjang. Belalai dipakai untuk minum, mengambil makanan, dan menyapa teman.",
+        activity: { type: "tap", prompt: "Ketuk makanan gajah!", options: ["🌿", "🍔", "🍫"], answer: "🌿" },
+      },
+      {
+        scene: "🐘🐘🐘",
+        text: "Gajah hidup berkelompok bersama keluarganya. Gajah kecil dijaga oleh gajah besar.",
+        activity: { type: "choose", prompt: "Ada berapa gajah?", options: ["2", "3", "4"], answer: "3" },
+      },
+    ],
+  },
+  {
+    id: "kucing",
+    title: "Mengenal Kucing",
+    topic: "Mengenal Hewan",
+    emoji: "🐱",
+    level: 1,
+    pages: [
+      {
+        scene: "🐱🏠",
+        text: "Kucing adalah hewan peliharaan. Badannya berbulu halus dan lembut.",
+        activity: { type: "tap", prompt: "Ketuk si Kucing!", options: ["🐶", "🐱", "🐰"], answer: "🐱" },
+      },
+      {
+        scene: "🐱🐟",
+        text: "Kucing suka makan ikan. Kucing juga pandai menangkap tikus.",
+        activity: { type: "tap", prompt: "Ketuk makanan kucing!", options: ["🐟", "🥕", "🍌"], answer: "🐟" },
+      },
+      {
+        scene: "🐱💤",
+        text: "Kucing bersuara miau. Kucing juga suka tidur siang yang lama.",
+        activity: { type: "choose", prompt: "Kucing sedang apa?", options: ["😴", "🏃", "🍽️"], answer: "😴" },
+      },
+    ],
+  },
+  {
+    id: "matahari",
+    title: "Mengenal Matahari",
+    topic: "Mengenal Langit",
+    emoji: "☀️",
+    level: 1,
+    pages: [
+      {
+        scene: "☀️☁️",
+        text: "Matahari adalah bintang yang besar dan sangat panas. Matahari terlihat di langit pada siang hari.",
+        activity: { type: "tap", prompt: "Ketuk matahari!", options: ["☀️", "🌙", "☁️"], answer: "☀️" },
+      },
+      {
+        scene: "☀️🌱",
+        text: "Matahari memberi kita cahaya dan rasa hangat. Tanaman juga butuh cahaya matahari supaya tumbuh.",
+        activity: { type: "choose", prompt: "Siapa yang butuh cahaya matahari?", options: ["🌱", "🪨", "🧱"], answer: "🌱" },
+      },
+      {
+        scene: "☀️🧢",
+        text: "Kalau cuaca panas, kita memakai topi dan minum air putih. Jangan menatap matahari langsung ya.",
+        activity: { type: "tap", prompt: "Ketuk topi!", options: ["🧢", "🧦", "🧤"], answer: "🧢" },
+      },
+    ],
+  },
+  {
+    id: "burung",
+    title: "Mengenal Burung",
+    topic: "Mengenal Hewan",
+    emoji: "🐦",
+    level: 1,
+    pages: [
+      {
+        scene: "🐦☁️",
+        text: "Burung punya sayap dan bulu. Burung bisa terbang tinggi di langit.",
+        activity: { type: "tap", prompt: "Ketuk hewan yang bisa terbang!", options: ["🐦", "🐢", "🐄"], answer: "🐦" },
+      },
+      {
+        scene: "🪹🥚",
+        text: "Burung bertelur. Telurnya dijaga hangat di dalam sarang.",
+        activity: { type: "choose", prompt: "Burung bertelur di mana?", options: ["🪹", "🌊", "🚗"], answer: "🪹" },
+      },
+      {
+        scene: "🐦🐦🐦🐦",
+        text: "Burung berkicau di pagi hari. Cip cip cip! Burung hidup bersama teman temannya.",
+        activity: { type: "choose", prompt: "Ada berapa burung?", options: ["3", "4", "5"], answer: "4" },
+      },
+    ],
+  },
+  {
+    id: "bulan",
+    title: "Mengenal Bulan",
+    topic: "Mengenal Langit",
+    emoji: "🌙",
+    level: 2,
+    pages: [
+      {
+        scene: "🌙⭐",
+        text: "Bulan terlihat di langit pada malam hari. Bentuknya bisa berubah ubah, kadang bulat, kadang sabit.",
+        activity: { type: "tap", prompt: "Ketuk bulan!", options: ["🌙", "☀️", "🌈"], answer: "🌙" },
+      },
+      {
+        scene: "🌙☀️",
+        text: "Bulan tidak punya cahaya sendiri. Bulan memantulkan cahaya matahari, jadi malam tidak terlalu gelap.",
+        activity: { type: "choose", prompt: "Cahaya bulan berasal dari mana?", options: ["☀️", "🔥", "💡"], answer: "☀️" },
+      },
+      {
+        scene: "🧑‍🚀🚀🌙",
+        text: "Ada astronot yang pernah pergi ke bulan naik roket. Astronot memakai baju khusus.",
+        activity: { type: "drag", prompt: "Tarik astronot ke roket!", item: "🧑‍🚀", target: "🚀", distractor: "🚗" },
+      },
+    ],
+  },
+  {
+    id: "bintang",
+    title: "Bintang di Langit",
+    topic: "Mengenal Langit",
+    emoji: "⭐",
+    level: 2,
+    pages: [
+      {
+        scene: "🌌⭐",
+        text: "Pada malam yang cerah, kita bisa melihat banyak bintang di langit. Bintang bersinar sendiri.",
+        activity: { type: "tap", prompt: "Ketuk bintang!", options: ["⭐", "🍎", "🔔"], answer: "⭐" },
+      },
+      {
+        scene: "☀️⭐",
+        text: "Matahari juga sebuah bintang. Bintang lain terlihat kecil karena letaknya sangat jauh.",
+        activity: { type: "choose", prompt: "Matahari juga sebuah apa?", options: ["⭐", "🌙", "☁️"], answer: "⭐" },
+      },
+      {
+        scene: "🌙⭐🛌",
+        text: "Bintang terlihat saat malam hari. Di siang hari bintang tidak terlihat karena cahaya matahari sangat terang.",
+        activity: { type: "choose", prompt: "Kapan kita bisa melihat bintang?", options: ["🌙", "☀️"], answer: "🌙" },
+      },
+    ],
+  },
+  {
+    id: "lebah",
+    title: "Mengenal Lebah",
+    topic: "Mengenal Hewan",
+    emoji: "🐝",
+    level: 2,
+    pages: [
+      {
+        scene: "🐝🌼",
+        text: "Lebah kecil dan bisa terbang. Badannya bergaris kuning dan hitam.",
+        activity: { type: "tap", prompt: "Ketuk si Lebah!", options: ["🐝", "🐜", "🐞"], answer: "🐝" },
+      },
+      {
+        scene: "🐝🌸",
+        text: "Lebah mengisap sari bunga. Dari sari bunga itu, lebah membuat madu.",
+        activity: { type: "drag", prompt: "Tarik lebah ke bunga!", item: "🐝", target: "🌸", distractor: "🪨" },
+      },
+      {
+        scene: "🐝🐝🍯",
+        text: "Lebah hidup bersama banyak teman di sarangnya. Mereka rajin bekerja sama.",
+        activity: { type: "choose", prompt: "Lebah membuat apa?", options: ["🍯", "🍕", "🍦"], answer: "🍯" },
+      },
+    ],
+  },
+  {
+    id: "ikan",
+    title: "Hewan di Dalam Air",
+    topic: "Mengenal Hewan",
+    emoji: "🐟",
+    level: 2,
+    pages: [
+      {
+        scene: "🐟🌊",
+        text: "Ikan hidup di dalam air. Ikan berenang dengan sirip dan ekornya.",
+        activity: { type: "tap", prompt: "Ketuk si Ikan!", options: ["🐟", "🐔", "🐑"], answer: "🐟" },
+      },
+      {
+        scene: "🐠💧",
+        text: "Ikan bernapas di dalam air memakai insang. Ada ikan yang kecil dan ada yang besar.",
+        activity: { type: "choose", prompt: "Ikan hidup di mana?", options: ["💧", "🌳", "🏜️"], answer: "💧" },
+      },
+      {
+        scene: "🐳🌊",
+        text: "Paus adalah hewan laut yang paling besar. Badannya lebih besar dari kapal kecil.",
+        activity: { type: "tap", prompt: "Ketuk paus!", options: ["🐳", "🐟", "🦀"], answer: "🐳" },
+      },
+    ],
+  },
+  {
+    id: "tata-surya",
+    title: "Mengenal Tata Surya",
+    topic: "Mengenal Langit",
+    emoji: "🪐",
+    level: 3,
+    pages: [
+      {
+        scene: "🌍☀️",
+        text: "Bumi adalah tempat tinggal kita. Bumi berputar mengelilingi matahari.",
+        activity: { type: "tap", prompt: "Ketuk Bumi!", options: ["🌍", "🌙", "☀️"], answer: "🌍" },
+      },
+      {
+        scene: "☀️🌍🪐",
+        text: "Ada delapan planet yang mengelilingi matahari. Bumi adalah salah satunya.",
+        activity: { type: "choose", prompt: "Ada berapa planet?", options: ["4", "8", "12"], answer: "8" },
+      },
+      {
+        scene: "🪐✨",
+        text: "Planet Saturnus punya cincin yang indah di sekelilingnya.",
+        activity: { type: "tap", prompt: "Ketuk Saturnus!", options: ["🪐", "🌍", "🌙"], answer: "🪐" },
+      },
+    ],
+  },
+  {
+    id: "pelangi",
+    title: "Mengenal Pelangi",
+    topic: "Mengenal Langit",
+    emoji: "🌈",
+    level: 3,
+    pages: [
+      {
+        scene: "🌧️☀️🌈",
+        text: "Pelangi muncul di langit setelah hujan, saat matahari bersinar.",
+        activity: { type: "tap", prompt: "Ketuk pelangi!", options: ["🌈", "☁️", "⚡"], answer: "🌈" },
+      },
+      {
+        scene: "🌈🎨",
+        text: "Warna pelangi ada tujuh. Ada merah, jingga, kuning, hijau, biru, nila, dan ungu.",
+        activity: { type: "choose", prompt: "Ada berapa warna pelangi?", options: ["5", "7", "9"], answer: "7" },
+      },
+      {
+        scene: "💧☀️🌈",
+        text: "Pelangi terbentuk dari cahaya matahari dan tetes air hujan. Pelangi indah, tapi tidak bisa disentuh.",
+        activity: { type: "choose", prompt: "Pelangi muncul setelah apa?", options: ["🌧️", "🌙", "❄️"], answer: "🌧️" },
+      },
+    ],
+  },
+  {
+    id: "kendaraan",
+    title: "Mengenal Kendaraan",
+    topic: "Mengenal Benda",
+    emoji: "🚗",
+    level: 3,
+    pages: [
+      {
+        scene: "🚗🛣️",
+        text: "Mobil berjalan di jalan raya. Mobil punya empat roda.",
+        activity: { type: "choose", prompt: "Berapa roda mobil?", options: ["2", "4", "6"], answer: "4" },
+      },
+      {
+        scene: "🚢🌊",
+        text: "Kapal berlayar di laut. Pesawat terbang di langit.",
+        activity: { type: "drag", prompt: "Tarik kapal ke laut!", item: "🚢", target: "🌊", distractor: "☁️" },
+      },
+      {
+        scene: "🚆🛤️",
+        text: "Kereta api berjalan di atas rel. Kereta api bisa membawa banyak penumpang.",
+        activity: { type: "tap", prompt: "Ketuk kereta api!", options: ["🚆", "🚲", "🛵"], answer: "🚆" },
+      },
+    ],
+  },
+  {
+    id: "tubuhku",
+    title: "Tubuhku Hebat",
+    topic: "Mengenal Tubuh",
+    emoji: "🧒",
+    level: 3,
+    pages: [
+      {
+        scene: "🧒👁️",
+        text: "Kita punya lima indra. Mata untuk melihat, telinga untuk mendengar.",
+        activity: { type: "tap", prompt: "Ketuk mata!", options: ["👁️", "👂", "👃"], answer: "👁️" },
+      },
+      {
+        scene: "🧒👂👃",
+        text: "Hidung untuk mencium bau. Lidah untuk merasakan makanan.",
+        activity: { type: "tap", prompt: "Ketuk telinga!", options: ["👂", "👃", "👅"], answer: "👂" },
+      },
+      {
+        scene: "🧒🤲👅",
+        text: "Tangan dan kulit untuk meraba. Terima kasih, tubuhku yang hebat!",
+        activity: { type: "tap", prompt: "Ketuk lidah!", options: ["👅", "👁️", "👂"], answer: "👅" },
+      },
+    ],
+  },
 ];
 
 export const storyForLetter = (index: number) => {
