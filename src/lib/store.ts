@@ -13,6 +13,7 @@ export type Profile = {
   stars: number;
   stickers: string[]; // completed letters
   numbers: number[]; // completed digits
+  haptics: boolean; // getaran benar/salah
 };
 
 const KEY = "belajar-ceria-profile-v1";
@@ -27,6 +28,7 @@ export const defaultProfile: Profile = {
   stars: 0,
   stickers: [],
   numbers: [],
+  haptics: true,
 };
 
 const listeners = new Set<(p: Profile) => void>();
