@@ -15,6 +15,7 @@ import { Route as KeluargaRouteImport } from './routes/keluarga'
 import { Route as KembarRouteImport } from './routes/kembar'
 import { Route as OrangtuaRouteImport } from './routes/orangtua'
 import { Route as HurufLetterRouteImport } from './routes/huruf.$letter'
+import { Route as AngkaDigitRouteImport } from './routes/angka.$digit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const HurufLetterRoute = HurufLetterRouteImport.update({
   path: '/huruf/$letter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AngkaDigitRoute = AngkaDigitRouteImport.update({
+  id: '/angka/$digit',
+  path: '/angka/$digit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/kembar': typeof KembarRoute
   '/orangtua': typeof OrangtuaRoute
   '/huruf/$letter': typeof HurufLetterRoute
+  '/angka/$digit': typeof AngkaDigitRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/kembar': typeof KembarRoute
   '/orangtua': typeof OrangtuaRoute
   '/huruf/$letter': typeof HurufLetterRoute
+  '/angka/$digit': typeof AngkaDigitRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,14 @@ export interface FileRoutesById {
   '/kembar': typeof KembarRoute
   '/orangtua': typeof OrangtuaRoute
   '/huruf/$letter': typeof HurufLetterRoute
+  '/angka/$digit': typeof AngkaDigitRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/cerita' | '/keluarga' | '/kembar' | '/orangtua' | '/huruf/$letter'
+    '/' | '/cerita' | '/keluarga' | '/kembar' | '/orangtua' | '/huruf/$letter' | '/angka/$digit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cerita' | '/keluarga' | '/kembar' | '/orangtua' | '/huruf/$letter'
+  to: '/' | '/cerita' | '/keluarga' | '/kembar' | '/orangtua' | '/huruf/$letter' | '/angka/$digit'
   id:
     | '__root__'
     | '/'
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
     | '/kembar'
     | '/orangtua'
     | '/huruf/$letter'
+    | '/angka/$digit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +105,7 @@ export interface RootRouteChildren {
   KembarRoute: typeof KembarRoute
   OrangtuaRoute: typeof OrangtuaRoute
   HurufLetterRoute: typeof HurufLetterRoute
+  AngkaDigitRoute: typeof AngkaDigitRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HurufLetterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/angka/$digit': {
+      id: '/angka/$digit'
+      path: '/angka/$digit'
+      fullPath: '/angka/$digit'
+      preLoaderRoute: typeof AngkaDigitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +169,7 @@ const rootRouteChildren: RootRouteChildren = {
   KembarRoute: KembarRoute,
   OrangtuaRoute: OrangtuaRoute,
   HurufLetterRoute: HurufLetterRoute,
+  AngkaDigitRoute: AngkaDigitRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
