@@ -1,4 +1,7 @@
-// Text-to-speech using the device's built-in voices (works offline, no ads, no cost).
+// Suara: memakai rekaman ayah/ibu kalau ada, kalau tidak memakai suara bawaan perangkat
+// (offline, tanpa iklan, tanpa biaya).
+import { cleanSpeechText, getClip, type ClipInfo } from "./recordings";
+
 export type SpeakOptions = {
   lang?: "id-ID" | "en-US";
   rate?: number;
@@ -26,20 +29,86 @@ if (typeof window !== "undefined" && window.speechSynthesis) {
 }
 
 let fallbackTimer: ReturnType<typeof setInterval> | undefined;
+let currentAudio: HTMLAudioElement | null = null;
+let currentFinish: (() => void) | null = null;
+
+function stopAudio() {
+  if (!currentAudio) return;
+  const finish = currentFinish;
+  currentAudio.pause();
+  currentAudio = null;
+  currentFinish = null;
+  // Sama seperti suara mesin yang dibatalkan: onEnd tetap dipanggil, tapi tidak serentak.
+  if (finish) setTimeout(finish, 0);
+}
 
 export function stopSpeaking() {
   if (fallbackTimer) clearInterval(fallbackTimer);
   if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+  stopAudio();
+}
+
+/** Putar rekaman suara ayah/ibu, dengan sorotan kata (perkiraan menurut panjang kata). */
+function playClip(text: string, clip: ClipInfo, opts: SpeakOptions) {
+  stopSpeaking();
+  const audio = new Audio(clip.url);
+  currentAudio = audio;
+
+  const words = text.match(/\S+/g) ?? [];
+  const total = words.reduce((n, w) => n + w.length + 1, 0) || 1;
+  let acc = 0;
+  const ends = words.map((w) => (acc += w.length + 1) / total);
+
+  let timer: ReturnType<typeof setInterval> | undefined;
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    if (timer) clearInterval(timer);
+    if (currentAudio === audio) {
+      currentAudio = null;
+      currentFinish = null;
+    }
+    opts.onWord?.(-1);
+    opts.onEnd?.();
+  };
+  currentFinish = finish;
+
+  audio.onended = finish;
+  audio.onerror = finish;
+  audio.onplaying = () => {
+    if (!opts.onWord || !words.length) return;
+    let cur = -1;
+    timer = setInterval(() => {
+      const f = clip.ms > 0 ? Math.min((audio.currentTime * 1000) / clip.ms, 1) : 0;
+      let i = ends.findIndex((e) => f < e);
+      if (i < 0) i = words.length - 1;
+      if (i !== cur) {
+        cur = i;
+        opts.onWord?.(i);
+      }
+    }, 80);
+  };
+  audio.play().catch(finish);
 }
 
 export function speak(text: string, opts: SpeakOptions = {}) {
-  if (typeof window === "undefined" || !window.speechSynthesis) {
+  if (typeof window === "undefined") {
     opts.onEnd?.();
     return;
   }
   // Emoji tidak ikut dibacakan (suara mesin bisa menyebut nama emoji).
-  text = text.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/\s{2,}/g, " ").trim();
+  text = cleanSpeechText(text);
   if (!text) {
+    opts.onEnd?.();
+    return;
+  }
+  const clip = getClip(text);
+  if (clip) {
+    playClip(text, clip, opts);
+    return;
+  }
+  if (!window.speechSynthesis) {
     opts.onEnd?.();
     return;
   }
