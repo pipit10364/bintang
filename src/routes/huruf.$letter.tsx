@@ -1,6 +1,6 @@
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { confusableGroupOf, getLetter, LETTERS } from "@/data/letters";
+import { confusableGroupOf, drillWords, getLetter, LETTERS } from "@/data/letters";
 import { storyForLetter } from "@/data/stories";
 import { addStars, saveProfile, useProfile } from "@/lib/store";
 import { KidPage } from "@/components/kid/TopBar";
@@ -53,8 +53,8 @@ function LetterModule() {
     } else setCelebrate({ kind: "step", perfect });
   };
 
-  // Kata latihan ketik dan baca keras: tiga kata pertama huruf ini.
-  const drill = data.words.slice(0, 3).map((w) => ({ text: w.id, emoji: w.emoji }));
+  // Kata latihan ketik dan baca keras: tiga kata terpendek dengan gambar yang jelas.
+  const drill = drillWords(data.words, 3).map((w) => ({ text: w.id, emoji: w.emoji }));
   const cur = steps[step];
   return (
     <KidPage title={`Huruf ${letter} ${letter.toLowerCase()}`}>
