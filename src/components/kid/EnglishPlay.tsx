@@ -28,6 +28,17 @@ const STAGE_NAME: Record<Stage, string> = {
   ucap: "Ucapkan katanya",
 };
 
+/** Kata untuk latihan mengetik: pilih acak, tetapi yang pendek lebih dulu (maks. 5 kata). */
+const typable = (words: EnWord[], n = 5) => {
+  const len = (w: EnWord) => w.en.replace(/[^a-zA-Z]/g, "").length;
+  return shuffle(words)
+    .map((w, i) => ({ w, i, c: len(w) + (/[\s-]/.test(w.en) ? 20 : 0) + (len(w) > 6 ? 6 : 0) }))
+    .sort((a, b) => a.c - b.c || a.i - b.i)
+    .slice(0, n)
+    .sort((a, b) => len(a.w) - len(b.w))
+    .map((x) => x.w);
+};
+
 const sayEn = (w: EnWord) => speak(w.en, { lang: "en-US" });
 
 /**
@@ -52,6 +63,20 @@ export function EnglishPlay({
   const allPerfect = useRef(true);
   const missed = useRef<Set<string>>(new Set());
   const stage = stages[i];
+  // Dipilih sekali per babak: kalau diacak ulang tiap render, kata berganti di tengah mengetik.
+  const typeWords = useMemo(
+    () => typable(words).map((w) => ({ text: w.en, emoji: w.emoji })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [words, i],
+  );
+  const sayWords = useMemo(
+    () =>
+      shuffle(words)
+        .slice(0, 4)
+        .map((w) => ({ text: w.en, emoji: w.emoji })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [words, i],
+  );
 
   const miss = (en: string) => {
     missed.current.add(en);
@@ -94,9 +119,7 @@ export function EnglishPlay({
         {stage === "ketik" && (
           <TypeWordsStep
             lang="en-US"
-            words={shuffle(words)
-              .slice(0, 5)
-              .map((w) => ({ text: w.en, emoji: w.emoji }))}
+            words={typeWords}
             onWrong={(w) => miss(w.text)}
             onDone={(p) => finishStage(p)}
           />
@@ -104,9 +127,7 @@ export function EnglishPlay({
         {stage === "ucap" && (
           <ReadWordsStep
             lang="en-US"
-            words={shuffle(words)
-              .slice(0, 4)
-              .map((w) => ({ text: w.en, emoji: w.emoji }))}
+            words={sayWords}
             onWrong={(w) => miss(w.text)}
             onDone={(p) => finishStage(p)}
           />
