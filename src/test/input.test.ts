@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { matchesTarget } from "@/lib/recognition";
-import { lettersOnly } from "@/components/kid/Inputs";
+import { assistFor, lettersOnly } from "@/components/kid/Inputs";
+import { LETTERS, drillWords } from "@/data/letters";
 import { THEMES } from "@/data/english";
 import { SHAPES, SHAPE_OBJECTS, TYPEABLE } from "@/data/shapes";
 
@@ -14,6 +15,40 @@ describe("matchesTarget", () => {
     expect(matchesTarget(["kucing"], "bola")).toBe(false);
     expect(matchesTarget(["cat"], "cow")).toBe(false);
     expect(matchesTarget([], "bola")).toBe(false);
+  });
+});
+
+describe("matchesTarget kata pendek", () => {
+  it("kata pendek tidak cocok hanya karena ada di dalam kata lain", () => {
+    expect(matchesTarget(["besar"], "es")).toBe(false);
+    expect(matchesTarget(["es"], "es")).toBe(true);
+    expect(matchesTarget(["aku mau es"], "es")).toBe(true);
+  });
+  it("kata tiga huruf boleh selisih satu huruf asal huruf depan sama", () => {
+    expect(matchesTarget(["jan"], "jam")).toBe(true);
+    expect(matchesTarget(["ibi"], "ibu")).toBe(true);
+    expect(matchesTarget(["tam"], "jam")).toBe(false);
+  });
+});
+
+describe("assistFor", () => {
+  it("bantuan memudar: salin, huruf pertama, ingatan", () => {
+    expect([0, 1, 2].map((i) => assistFor(i, 3))).toEqual(["copy", "first", "none"]);
+    expect([0, 1, 2, 3, 4].map((i) => assistFor(i, 5))).toEqual(["copy", "copy", "first", "first", "none"]);
+  });
+});
+
+describe("drillWords", () => {
+  it("memilih kata pendek, satu kata, dengan gambar yang jelas", () => {
+    for (const l of LETTERS) {
+      const picks = drillWords(l.words, 3);
+      expect(picks.length).toBe(Math.min(3, l.words.length));
+      expect(picks[0].id).toBeTruthy();
+    }
+    const c = drillWords(LETTERS.find((l) => l.letter === "C")!.words).map((w) => w.id);
+    expect(c).not.toContain("Cumi-cumi");
+    const a = drillWords(LETTERS.find((l) => l.letter === "A")!.words).map((w) => w.id);
+    expect(a).not.toContain("Anggur");
   });
 });
 
