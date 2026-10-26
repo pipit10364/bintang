@@ -89,10 +89,14 @@ const ID_VOICE_FIX: Record<string, string> = { hi: "hii" };
 
 function ttsText(text: string, lang: string, hasVoice: boolean) {
   if (baseOf(lang) !== "id") return text;
-  const single = /^[A-Za-z]+$/.test(text);
-  if (!single) return text;
-  if (!hasVoice) return respellForEnglishVoice(text);
-  return ID_VOICE_FIX[text.toLowerCase()] ?? text;
+  // Satu kata atau suku kata yang diulang ("ca, ca, ca") dieja ulang per kata.
+  const tokens = text.split(/[\s,.!]+/).filter(Boolean);
+  const same =
+    tokens.length > 0 &&
+    tokens.every((t) => /^[A-Za-z]+$/.test(t) && t.toLowerCase() === tokens[0].toLowerCase());
+  if (!same) return text;
+  const one = hasVoice ? (ID_VOICE_FIX[tokens[0].toLowerCase()] ?? tokens[0]) : respellForEnglishVoice(tokens[0]);
+  return Array(tokens.length).fill(one).join(", ");
 }
 
 let fallbackTimer: ReturnType<typeof setInterval> | undefined;
@@ -259,4 +263,17 @@ export function speak(text: string, opts: SpeakOptions = {}) {
 
 export function speakAsync(text: string, opts: Omit<SpeakOptions, "onEnd"> = {}) {
   return new Promise<void>((resolve) => speak(text, { ...opts, onEnd: resolve }));
+}
+
+/**
+ * Ucapkan satu suku kata beberapa kali, jelas dan berurutan ("ca, ca, ca").
+ * Kalau ayah atau ibu sudah merekam suku kata itu, rekamannya yang diputar.
+ */
+export function speakSyllable(syl: string, times = 3, opts: Pick<SpeakOptions, "onEnd"> = {}) {
+  if (!getClip(syl)) {
+    speak(Array(times).fill(syl).join(", "), opts);
+    return;
+  }
+  const again = (n: number) => speak(syl, { onEnd: n > 1 ? () => again(n - 1) : opts.onEnd });
+  again(times);
 }
