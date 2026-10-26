@@ -10,21 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BentukRouteImport } from './routes/bentuk'
 import { Route as CeritaRouteImport } from './routes/cerita'
+import { Route as InggrisRouteImport } from './routes/inggris'
 import { Route as KeluargaRouteImport } from './routes/keluarga'
 import { Route as KembarRouteImport } from './routes/kembar'
 import { Route as OrangtuaRouteImport } from './routes/orangtua'
-import { Route as HurufLetterRouteImport } from './routes/huruf.$letter'
 import { Route as AngkaDigitRouteImport } from './routes/angka.$digit'
+import { Route as HurufLetterRouteImport } from './routes/huruf.$letter'
+import { Route as InggrisThemeRouteImport } from './routes/inggris.$theme'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BentukRoute = BentukRouteImport.update({
+  id: '/bentuk',
+  path: '/bentuk',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CeritaRoute = CeritaRouteImport.update({
   id: '/cerita',
   path: '/cerita',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InggrisRoute = InggrisRouteImport.update({
+  id: '/inggris',
+  path: '/inggris',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeluargaRoute = KeluargaRouteImport.update({
@@ -42,70 +55,108 @@ const OrangtuaRoute = OrangtuaRouteImport.update({
   path: '/orangtua',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HurufLetterRoute = HurufLetterRouteImport.update({
-  id: '/huruf/$letter',
-  path: '/huruf/$letter',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AngkaDigitRoute = AngkaDigitRouteImport.update({
   id: '/angka/$digit',
   path: '/angka/$digit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HurufLetterRoute = HurufLetterRouteImport.update({
+  id: '/huruf/$letter',
+  path: '/huruf/$letter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InggrisThemeRoute = InggrisThemeRouteImport.update({
+  id: '/$theme',
+  path: '/$theme',
+  getParentRoute: () => InggrisRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bentuk': typeof BentukRoute
   '/cerita': typeof CeritaRoute
+  '/inggris': typeof InggrisRouteWithChildren
   '/keluarga': typeof KeluargaRoute
   '/kembar': typeof KembarRoute
   '/orangtua': typeof OrangtuaRoute
-  '/huruf/$letter': typeof HurufLetterRoute
   '/angka/$digit': typeof AngkaDigitRoute
+  '/huruf/$letter': typeof HurufLetterRoute
+  '/inggris/$theme': typeof InggrisThemeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bentuk': typeof BentukRoute
   '/cerita': typeof CeritaRoute
+  '/inggris': typeof InggrisRouteWithChildren
   '/keluarga': typeof KeluargaRoute
   '/kembar': typeof KembarRoute
   '/orangtua': typeof OrangtuaRoute
-  '/huruf/$letter': typeof HurufLetterRoute
   '/angka/$digit': typeof AngkaDigitRoute
+  '/huruf/$letter': typeof HurufLetterRoute
+  '/inggris/$theme': typeof InggrisThemeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bentuk': typeof BentukRoute
   '/cerita': typeof CeritaRoute
+  '/inggris': typeof InggrisRouteWithChildren
   '/keluarga': typeof KeluargaRoute
   '/kembar': typeof KembarRoute
   '/orangtua': typeof OrangtuaRoute
-  '/huruf/$letter': typeof HurufLetterRoute
   '/angka/$digit': typeof AngkaDigitRoute
+  '/huruf/$letter': typeof HurufLetterRoute
+  '/inggris/$theme': typeof InggrisThemeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/cerita' | '/keluarga' | '/kembar' | '/orangtua' | '/huruf/$letter' | '/angka/$digit'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cerita' | '/keluarga' | '/kembar' | '/orangtua' | '/huruf/$letter' | '/angka/$digit'
-  id:
-    | '__root__'
     | '/'
+    | '/bentuk'
     | '/cerita'
+    | '/inggris'
     | '/keluarga'
     | '/kembar'
     | '/orangtua'
-    | '/huruf/$letter'
     | '/angka/$digit'
+    | '/huruf/$letter'
+    | '/inggris/$theme'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/bentuk'
+    | '/cerita'
+    | '/inggris'
+    | '/keluarga'
+    | '/kembar'
+    | '/orangtua'
+    | '/angka/$digit'
+    | '/huruf/$letter'
+    | '/inggris/$theme'
+  id:
+    | '__root__'
+    | '/'
+    | '/bentuk'
+    | '/cerita'
+    | '/inggris'
+    | '/keluarga'
+    | '/kembar'
+    | '/orangtua'
+    | '/angka/$digit'
+    | '/huruf/$letter'
+    | '/inggris/$theme'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BentukRoute: typeof BentukRoute
   CeritaRoute: typeof CeritaRoute
+  InggrisRoute: typeof InggrisRouteWithChildren
   KeluargaRoute: typeof KeluargaRoute
   KembarRoute: typeof KembarRoute
   OrangtuaRoute: typeof OrangtuaRoute
-  HurufLetterRoute: typeof HurufLetterRoute
   AngkaDigitRoute: typeof AngkaDigitRoute
+  HurufLetterRoute: typeof HurufLetterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -117,11 +168,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bentuk': {
+      id: '/bentuk'
+      path: '/bentuk'
+      fullPath: '/bentuk'
+      preLoaderRoute: typeof BentukRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cerita': {
       id: '/cerita'
       path: '/cerita'
       fullPath: '/cerita'
       preLoaderRoute: typeof CeritaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inggris': {
+      id: '/inggris'
+      path: '/inggris'
+      fullPath: '/inggris'
+      preLoaderRoute: typeof InggrisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keluarga': {
@@ -145,13 +210,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrangtuaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/huruf/$letter': {
-      id: '/huruf/$letter'
-      path: '/huruf/$letter'
-      fullPath: '/huruf/$letter'
-      preLoaderRoute: typeof HurufLetterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/angka/$digit': {
       id: '/angka/$digit'
       path: '/angka/$digit'
@@ -159,17 +217,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AngkaDigitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/huruf/$letter': {
+      id: '/huruf/$letter'
+      path: '/huruf/$letter'
+      fullPath: '/huruf/$letter'
+      preLoaderRoute: typeof HurufLetterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inggris/$theme': {
+      id: '/inggris/$theme'
+      path: '/$theme'
+      fullPath: '/inggris/$theme'
+      preLoaderRoute: typeof InggrisThemeRouteImport
+      parentRoute: typeof InggrisRoute
+    }
   }
 }
 
+interface InggrisRouteChildren {
+  InggrisThemeRoute: typeof InggrisThemeRoute
+}
+
+const InggrisRouteChildren: InggrisRouteChildren = {
+  InggrisThemeRoute: InggrisThemeRoute,
+}
+
+const InggrisRouteWithChildren =
+  InggrisRoute._addFileChildren(InggrisRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BentukRoute: BentukRoute,
   CeritaRoute: CeritaRoute,
+  InggrisRoute: InggrisRouteWithChildren,
   KeluargaRoute: KeluargaRoute,
   KembarRoute: KembarRoute,
   OrangtuaRoute: OrangtuaRoute,
-  HurufLetterRoute: HurufLetterRoute,
   AngkaDigitRoute: AngkaDigitRoute,
+  HurufLetterRoute: HurufLetterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
