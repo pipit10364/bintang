@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useIdVoiceStatus } from "@/lib/speech";
 import { VoiceStudio } from "@/components/VoiceStudio";
+import { MicTest } from "@/components/MicTest";
 import { vibrateNo, vibrateOk } from "@/lib/haptics";
 
 export const Route = createFileRoute("/orangtua")({
@@ -170,6 +171,8 @@ function Settings({ profile }: { profile: Profile }) {
       </section>
 
       <VoiceNotice />
+
+      <MicTest />
 
       <VoiceStudio stories={f.stories} />
 
