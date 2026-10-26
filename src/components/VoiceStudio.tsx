@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LETTERS } from "@/data/letters";
+import { syllableFamily } from "@/data/syllables";
 import { ID_WORDS } from "@/data/numbers";
 import { STORIES } from "@/data/stories";
 import type { CustomStory } from "@/lib/store";
@@ -20,6 +21,11 @@ function buildGroups(stories: CustomStory[]): Group[] {
     },
     { id: "hitung", title: "🔢 Berhitung 0–10", items: ID_WORDS },
     { id: "huruf", title: "🔤 Nama huruf", items: LETTERS.map((l) => `Huruf ${l.letter}`) },
+    {
+      id: "suku",
+      title: "🔡 Suku kata (ba be bi bo bu)",
+      items: [...new Set(LETTERS.flatMap((l) => syllableFamily(l.letter)))],
+    },
     ...STORIES.map((s) => ({
       id: s.id,
       title: `${s.emoji} ${s.title}`,
