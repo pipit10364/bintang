@@ -247,6 +247,28 @@ function MenuContent() {
       </section>
       <section className="grid grid-cols-2 gap-3">
         <Link
+          to="/bentuk"
+          onClick={() => speak("Belajar bentuk")}
+          className="relative rounded-2xl bg-butter p-4 text-center shadow-[0_5px_0_var(--border)]"
+        >
+          <div className="text-3xl">🔷</div>
+          <div className="mt-1 font-display text-base sm:text-lg">Belajar Bentuk</div>
+          {profile.shapes && <span className="absolute -top-1 -right-1 text-lg">⭐</span>}
+        </Link>
+        <Link
+          to="/inggris"
+          onClick={() => speak("Bahasa Inggris")}
+          className="relative rounded-2xl bg-sky p-4 text-center shadow-[0_5px_0_var(--border)]"
+        >
+          <div className="text-3xl">🇬🇧</div>
+          <div className="mt-1 font-display text-base sm:text-lg">Bahasa Inggris</div>
+          {profile.enThemes.length > 0 && (
+            <span className="absolute -top-1 -right-1 rounded-full bg-card px-2 text-sm">{profile.enThemes.length} ⭐</span>
+          )}
+        </Link>
+      </section>
+      <section className="grid grid-cols-2 gap-3">
+        <Link
           to="/kembar"
           onClick={() => speak("Huruf kembar")}
           className="rounded-2xl bg-lilac p-4 text-center shadow-[0_5px_0_var(--border)]"

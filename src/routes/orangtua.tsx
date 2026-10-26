@@ -4,6 +4,7 @@ import { saveProfile, useProfile, type Profile } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useIdVoiceStatus } from "@/lib/speech";
 import { VoiceStudio } from "@/components/VoiceStudio";
 import { vibrateNo, vibrateOk } from "@/lib/haptics";
 
@@ -168,6 +169,8 @@ function Settings({ profile }: { profile: Profile }) {
         </ul>
       </section>
 
+      <VoiceNotice />
+
       <VoiceStudio stories={f.stories} />
 
       <section className="space-y-3 rounded-3xl bg-card p-5">
@@ -204,5 +207,26 @@ function Settings({ profile }: { profile: Profile }) {
         <p><b>iPhone/iPad:</b> Setelan → Aksesibilitas → Akses Terpandu (Guided Access), lalu klik tombol samping 3× saat aplikasi terbuka.</p>
       </section>
     </div>
+  );
+}
+
+function VoiceNotice() {
+  const status = useIdVoiceStatus();
+  if (status === "unknown") return null;
+  return (
+    <section className={`space-y-2 rounded-3xl p-5 ${status === "ada" ? "bg-mint/50" : "bg-butter/60"}`}>
+      <h2 className="text-xl">🔊 Suara Bahasa Indonesia</h2>
+      {status === "ada" ? (
+        <p className="text-sm text-muted-foreground">
+          Perangkat ini punya suara bahasa Indonesia, jadi suku kata dan kata dibacakan dengan logat Indonesia.
+        </p>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Perangkat ini belum punya suara bahasa Indonesia, sehingga suku kata bisa terdengar berlogat Inggris (misalnya
+          "ca" terdengar "ka"). Pasang suara Indonesia di pengaturan perangkat (Pengaturan, Bahasa, Output teks ke
+          ucapan), atau rekam suara ayah atau ibu di bagian rekaman di bawah ini.
+        </p>
+      )}
+    </section>
   );
 }

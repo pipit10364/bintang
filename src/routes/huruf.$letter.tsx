@@ -7,6 +7,7 @@ import { KidPage } from "@/components/kid/TopBar";
 import { StoryReader } from "@/components/kid/Story";
 import { AssessmentStep, ConfusableStep, DetectiveStep, MathStep, TraceStep } from "@/components/kid/Activities";
 import { SpellingStep } from "@/components/kid/Spelling";
+import { ReadWordsStep, TypeWordsStep } from "@/components/kid/Inputs";
 import { Celebration } from "@/components/kid/Celebration";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/huruf/$letter")({
 });
 
 const STEP_ICON: Record<string, string> = {
-  story: "📖", trace: "✏️", twin: "🔁", eja: "🔤", detective: "🔎", math: "🔢", quiz: "🧠",
+  story: "📖", trace: "✏️", twin: "🔁", eja: "🔤", detective: "🔎", ketik: "⌨️", baca: "🎤", math: "🔢", quiz: "🧠",
 };
 
 function LetterModule() {
@@ -37,7 +38,7 @@ function LetterModule() {
   const index = LETTERS.findIndex((l) => l.letter === letter);
   const story = storyForLetter(index);
   const group = confusableGroupOf(letter);
-  const steps = ["story", "trace", ...(group ? ["twin"] : []), "eja", "detective", "math", "quiz"];
+  const steps = ["story", "trace", ...(group ? ["twin"] : []), "eja", "detective", "ketik", "baca", "math", "quiz"];
   const [step, setStep] = useState(0);
   const [celebrate, setCelebrate] = useState<null | { kind: "step" | "final"; perfect: boolean }>(null);
   const { profile } = useProfile();
@@ -52,15 +53,17 @@ function LetterModule() {
     } else setCelebrate({ kind: "step", perfect });
   };
 
+  // Kata latihan ketik dan baca keras: tiga kata pertama huruf ini.
+  const drill = data.words.slice(0, 3).map((w) => ({ text: w.id, emoji: w.emoji }));
   const cur = steps[step];
   return (
     <KidPage title={`Huruf ${letter} ${letter.toLowerCase()}`}>
-      <div className="mb-5 flex justify-center gap-2">
+      <div className="mb-5 flex flex-wrap justify-center gap-2">
         {steps.map((s, i) => (
           <div
             key={s}
             className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-full text-2xl",
+              "flex h-10 w-10 items-center justify-center rounded-full text-xl sm:h-12 sm:w-12 sm:text-2xl",
               i < step ? "bg-mint" : i === step ? "bg-butter ring-4 ring-primary" : "bg-muted opacity-60",
             )}
           >
@@ -75,6 +78,8 @@ function LetterModule() {
         {cur === "twin" && group && <ConfusableStep group={group} onDone={next} />}
         {cur === "eja" && <SpellingStep letter={letter} words={data.words} onDone={next} />}
         {cur === "detective" && <DetectiveStep data={data} onDone={next} />}
+        {cur === "ketik" && <TypeWordsStep words={drill} onDone={next} />}
+        {cur === "baca" && <ReadWordsStep words={drill} onDone={next} />}
         {cur === "math" && <MathStep emoji={data.words[0].emoji} onDone={next} />}
         {cur === "quiz" && <AssessmentStep profile={profile} onDone={next} />}
       </div>
