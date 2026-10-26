@@ -60,3 +60,26 @@ export function confusableGroupOf(letter: string) {
   const l = letter.toLowerCase();
   return CONFUSABLE_GROUPS.find((g) => (g as readonly string[]).includes(l));
 }
+
+/** Gambar yang membingungkan anak (tidak jelas mewakili kata itu), dihindari untuk latihan menulis. */
+const VAGUE_PICTURE = new Set(["Kuis", "Wajah", "Warna", "Vas", "Xilofon", "Zaitun", "Quran", "Feri"]);
+
+/**
+ * Kata latihan menulis dan membaca keras untuk satu huruf. Anak kelas 1 baru bisa menulis
+ * kata pendek dengan gambar yang jelas, jadi dipilih yang paling pendek (satu kata, tanpa spasi
+ * atau tanda hubung), gambar yang jelas lebih dulu, dan urutannya dari yang terpendek.
+ */
+export function drillWords(words: Word[], n = 3): Word[] {
+  const letters = (w: Word) => w.id.replace(/[^a-zA-Z]/g, "").length;
+  const cost = (w: Word) =>
+    letters(w) +
+    (/[\s-]/.test(w.id) ? 20 : 0) +
+    (VAGUE_PICTURE.has(w.id) ? 8 : 0) +
+    (letters(w) > 6 ? 6 : 0);
+  return words
+    .map((w, i) => ({ w, i, c: cost(w) }))
+    .sort((a, b) => a.c - b.c || a.i - b.i)
+    .slice(0, n)
+    .sort((a, b) => letters(a.w) - letters(b.w) || a.i - b.i)
+    .map((x) => x.w);
+}
