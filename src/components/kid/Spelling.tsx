@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
-import { speak, speakAsync } from "@/lib/speech";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { speak, speakAsync, speakSyllable, stopSpeaking } from "@/lib/speech";
 import { syllabify, syllableFamily } from "@/data/syllables";
 import type { Word } from "@/data/letters";
 import { Instruction, praiseThen, tryAgain, useGateReady, WRONG_PAUSE_MS } from "./Speaker";
+import { Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const bigBtn =
@@ -146,7 +147,7 @@ function TapSyllable({
 
   return (
     <div className="space-y-5">
-      <Instruction key={r} text={`Ketuk suku kata "${target}". Dengarkan baik baik ya.`} />
+      <TapPrompt key={r} target={target} />
       <div className="flex flex-wrap justify-center gap-3">
         {shuffle(family).map((s) => (
           <button
@@ -260,6 +261,54 @@ function SpellWords({
           {i + 1 < picks.length ? "Kata berikutnya ▶" : "Selesai! ⭐"}
         </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Perintah ketuk suku kata. Urutannya: "Dengarkan baik baik ya. Ketuk suku kata." lalu
+ * suku katanya diucapkan tiga kali di akhir, supaya anak mendengarnya paling jelas.
+ * Tombol speaker hanya mengulang suku katanya.
+ */
+function TapPrompt({ target }: { target: string }) {
+  const ready = useGateReady();
+  const gen = useRef(0);
+
+  useEffect(() => {
+    const id = ++gen.current;
+    const t = setTimeout(() => {
+      speak("Dengarkan baik baik ya. Ketuk suku kata.", {
+        onEnd: () => {
+          if (id === gen.current) speakSyllable(target, 3);
+        },
+      });
+    }, 250);
+    return () => {
+      clearTimeout(t);
+      gen.current++;
+      stopSpeaking();
+    };
+  }, [target]);
+
+  return (
+    <div className="flex items-center gap-4 rounded-3xl bg-card p-3 shadow-sm">
+      <button
+        type="button"
+        aria-label="Ulangi suku katanya"
+        onClick={() => {
+          gen.current++;
+          speakSyllable(target, 3);
+        }}
+        className={cn(
+          "inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-butter text-foreground shadow-[0_6px_0_var(--border)] transition active:translate-y-1 active:shadow-none",
+          !ready && "animate-pulse ring-4 ring-butter/70",
+        )}
+      >
+        <Volume2 className="h-10 w-10" />
+      </button>
+      <p className="min-w-0 font-display text-lg break-words text-foreground md:text-2xl">
+        Dengarkan baik baik ya. Ketuk suku kata <b>{target}</b>.
+      </p>
     </div>
   );
 }
