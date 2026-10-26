@@ -16,6 +16,9 @@ export type Profile = {
   stickers: string[]; // completed letters
   numbers: number[]; // completed digits
   haptics: boolean; // getaran benar/salah
+  shapes: boolean; // sesi bentuk selesai
+  enThemes: string[]; // tema bahasa Inggris yang selesai
+  enHard: string[]; // kata Inggris yang masih sulit (diulang di tantangan)
 };
 
 const KEY = "belajar-ceria-profile-v1";
@@ -32,6 +35,9 @@ export const defaultProfile: Profile = {
   stickers: [],
   numbers: [],
   haptics: true,
+  shapes: false,
+  enThemes: [],
+  enHard: [],
 };
 
 const listeners = new Set<(p: Profile) => void>();

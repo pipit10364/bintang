@@ -1,5 +1,6 @@
 // Suara: memakai rekaman ayah/ibu kalau ada, kalau tidak memakai suara bawaan perangkat
 // (offline, tanpa iklan, tanpa biaya).
+import { useEffect, useState } from "react";
 import { cleanSpeechText, getClip, type ClipInfo } from "./recordings";
 
 export type SpeakOptions = {
@@ -11,21 +12,87 @@ export type SpeakOptions = {
 
 let voicesCache: SpeechSynthesisVoice[] = [];
 
-function pickVoice(lang: string) {
-  if (typeof window === "undefined" || !window.speechSynthesis) return undefined;
+/** Kode bahasa suara bisa "id-ID", "id_ID", atau "in-ID" (Android lama memakai "in"). */
+const normLang = (l: string) => l.replace("_", "-").toLowerCase();
+const baseOf = (l: string) => {
+  const b = normLang(l).slice(0, 2);
+  return b === "in" ? "id" : b;
+};
+
+function loadVoices() {
+  if (typeof window === "undefined" || !window.speechSynthesis) return [];
   if (!voicesCache.length) voicesCache = window.speechSynthesis.getVoices();
-  const base = lang.slice(0, 2);
+  return voicesCache;
+}
+
+function pickVoice(lang: string) {
+  const voices = loadVoices();
+  const want = normLang(lang);
+  const base = baseOf(lang);
+  const sameBase = voices.filter((v) => baseOf(v.lang) === base);
   return (
-    voicesCache.find((v) => v.lang === lang && /female|wanita|google/i.test(v.name)) ??
-    voicesCache.find((v) => v.lang === lang) ??
-    voicesCache.find((v) => v.lang.startsWith(base))
+    sameBase.find((v) => normLang(v.lang) === want && /female|wanita|google/i.test(v.name)) ??
+    sameBase.find((v) => normLang(v.lang) === want) ??
+    sameBase[0]
   );
 }
+
+/** Apakah perangkat punya suara untuk bahasa ini? */
+export const hasVoiceFor = (lang: "id-ID" | "en-US") => Boolean(pickVoice(lang));
 
 if (typeof window !== "undefined" && window.speechSynthesis) {
   window.speechSynthesis.onvoiceschanged = () => {
     voicesCache = window.speechSynthesis.getVoices();
+    voiceSubs.forEach((f) => f());
   };
+}
+const voiceSubs = new Set<() => void>();
+
+/** Status suara Indonesia di perangkat: "unknown" (belum dimuat), "ada", atau "tidak". */
+export function useIdVoiceStatus() {
+  const [status, setStatus] = useState<"unknown" | "ada" | "tidak">("unknown");
+  useEffect(() => {
+    const check = () => {
+      if (!window.speechSynthesis) return setStatus("tidak");
+      const voices = loadVoices();
+      if (!voices.length) return;
+      setStatus(hasVoiceFor("id-ID") ? "ada" : "tidak");
+    };
+    check();
+    voiceSubs.add(check);
+    const t = setTimeout(check, 1500);
+    return () => {
+      voiceSubs.delete(check);
+      clearTimeout(t);
+    };
+  }, []);
+  return status;
+}
+
+/**
+ * Mesin suara tanpa suara Indonesia akan membaca suku kata dengan logat Inggris
+ * ("ca" jadi "ka", "hi" jadi "hai"). Ejaan di bawah memaksa bunyi yang mendekati
+ * bahasa Indonesia untuk kata atau suku kata tunggal.
+ */
+function respellForEnglishVoice(word: string) {
+  const w = word.toLowerCase();
+  if (!/^[a-z]{1,10}$/.test(w)) return word;
+  const VOWEL: Record<string, string> = { a: "ah", i: "ee", u: "oo", e: "eh", o: "oh" };
+  return w
+    .replace(/sy/g, "sh")
+    .replace(/c(?!h)/g, "ch")
+    .replace(/[aiueo]/g, (v) => VOWEL[v]);
+}
+
+/** Kata Indonesia yang bentuknya sama dengan kata Inggris, dibaca keliru walau suara Indonesia ada. */
+const ID_VOICE_FIX: Record<string, string> = { hi: "hii" };
+
+function ttsText(text: string, lang: string, hasVoice: boolean) {
+  if (baseOf(lang) !== "id") return text;
+  const single = /^[A-Za-z]+$/.test(text);
+  if (!single) return text;
+  if (!hasVoice) return respellForEnglishVoice(text);
+  return ID_VOICE_FIX[text.toLowerCase()] ?? text;
 }
 
 let fallbackTimer: ReturnType<typeof setInterval> | undefined;
@@ -142,11 +209,11 @@ export function speak(text: string, opts: SpeakOptions = {}) {
   stopSpeaking();
   const g = beginSpeak();
   const lang = opts.lang ?? "id-ID";
-  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice(lang);
+  const u = new SpeechSynthesisUtterance(ttsText(text, lang, Boolean(v)));
   u.lang = lang;
   u.rate = opts.rate ?? (lang === "en-US" ? 0.85 : 0.9);
   u.pitch = 1.05;
-  const v = pickVoice(lang);
   if (v) u.voice = v;
 
   // Word offsets, for karaoke highlight
