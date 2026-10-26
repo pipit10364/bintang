@@ -25,7 +25,7 @@ const raw: Record<string, [string, string, string][]> = {
   U: [["Ular", "🐍", "snake"], ["Udang", "🦐", "shrimp"], ["Ubi", "🍠", "sweet potato"], ["Unta", "🐪", "camel"]],
   V: [["Vas", "🏺", "vase"], ["Violin", "🎻", "violin"], ["Van", "🚐", "van"]],
   W: [["Wortel", "🥕", "carrot"], ["Warna", "🎨", "colors"], ["Wajah", "🙂", "face"]],
-  X: [["Xilofon", "🎶", "xylophone"]],
+  X: [["Xilofon", "🎵", "xylophone"]],
   Y: [["Yoyo", "🪀", "yo-yo"], ["Yoga", "🧘", "yoga"]],
   Z: [["Zebra", "🦓", "zebra"], ["Zaitun", "🫒", "olive"]],
 };
