@@ -8,7 +8,8 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { registerOffline } from "@/lib/offline";
 
 import appCss from "../styles.css?url";
 
@@ -115,6 +116,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => registerOffline(), []);
 
   return (
     <QueryClientProvider client={queryClient}>
