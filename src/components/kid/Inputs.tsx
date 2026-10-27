@@ -236,6 +236,7 @@ export function ReadAloud({
   onWrong?: () => void;
 }) {
   const [supported, setSupported] = useState<boolean | null>(null);
+  const [online, setOnline] = useState(true);
   const [phase, setPhase] = useState<
     "idle" | "opening" | "mic" | "speech" | "wrong" | "ok" | "problem"
   >("idle");
@@ -247,7 +248,15 @@ export function ReadAloud({
 
   useEffect(() => {
     setSupported(recognitionSupported());
-    return () => stopListening();
+    const sync = () => setOnline(navigator.onLine);
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      stopListening();
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
+    };
   }, []);
 
   const succeed = (perfect: boolean) => {
@@ -321,10 +330,12 @@ export function ReadAloud({
         </button>
       </div>
 
-      {supported === false ? (
+      {supported === false || (supported && !online) ? (
         <div className="space-y-3 rounded-3xl bg-card p-4 text-center">
           <p className="font-display text-lg">
-            Perangkat ini belum bisa mendengar bacaan. Anak membaca keras, lalu orang tua menilai.
+            {supported === false
+              ? "Perangkat ini belum bisa mendengar bacaan. Anak membaca keras, lalu orang tua menilai."
+              : "Tidak ada internet, jadi mikrofon belum bisa mendengar. Anak membaca keras, lalu orang tua menilai."}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <button
