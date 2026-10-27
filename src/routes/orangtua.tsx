@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { saveProfile, useProfile, type Profile } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useIdVoiceStatus } from "@/lib/speech";
 import { VoiceStudio } from "@/components/VoiceStudio";
 import { MicTest } from "@/components/MicTest";
-import { vibrateNo, vibrateOk } from "@/lib/haptics";
+import { hapticsKind, vibrateNo, vibrateOk } from "@/lib/haptics";
+import { useOfflineStatus } from "@/lib/offline";
 
 export const Route = createFileRoute("/orangtua")({
   head: () => ({
@@ -174,14 +175,16 @@ function Settings({ profile }: { profile: Profile }) {
 
       <MicTest />
 
+      <OfflineCard />
+
       <VoiceStudio stories={f.stories} />
 
       <section className="space-y-3 rounded-3xl bg-card p-5">
         <h2 className="text-xl">📳 Getaran</h2>
         <p className="text-sm text-muted-foreground">
-          Jawaban benar bergetar tiga denyut pendek, jawaban salah bergetar satu kali panjang. Hanya berfungsi di
-          Android, dan HP harus mengaktifkan getaran sentuhan di pengaturannya.
+          Jawaban benar bergetar tiga denyut (tuk-tuk-tuuuk), jawaban salah bergetar satu kali panjang (bzzzt).
         </p>
+        <HapticsNote />
         <label className="flex items-center gap-3">
           <input type="checkbox" className="h-5 w-5" checked={f.haptics !== false} onChange={(e) => save({ haptics: e.target.checked })} />
           <span>Aktifkan getaran</span>
@@ -210,6 +213,53 @@ function Settings({ profile }: { profile: Profile }) {
         <p><b>iPhone/iPad:</b> Setelan → Aksesibilitas → Akses Terpandu (Guided Access), lalu klik tombol samping 3× saat aplikasi terbuka.</p>
       </section>
     </div>
+  );
+}
+
+function HapticsNote() {
+  const [kind, setKind] = useState<"vibrate" | "ios" | "none" | null>(null);
+  useEffect(() => setKind(hapticsKind()), []);
+  if (!kind) return null;
+  return (
+    <p className="rounded-2xl bg-butter/50 p-3 text-xs text-muted-foreground">
+      {kind === "vibrate"
+        ? "Perangkat ini mendukung getaran. Kalau tombol tes tidak terasa: cek pengaturan getaran sentuhan / intensitas getaran di HP, matikan mode hemat baterai, dan pastikan HP tidak dalam mode senyap total."
+        : kind === "ios"
+          ? "iPhone dan iPad tidak mengizinkan getaran dari peramban, jadi dipakai ketukan haptic yang lebih halus (iOS 17.4 ke atas, dan Pengaturan > Suara & Haptik > Haptik Sistem harus menyala). Kalau tidak terasa, itu batasan dari Apple."
+          : "Peramban atau perangkat ini tidak mendukung getaran."}
+    </p>
+  );
+}
+
+function OfflineCard() {
+  const { state, download } = useOfflineStatus();
+  return (
+    <section className="space-y-3 rounded-3xl bg-card p-5">
+      <h2 className="text-xl">📴 Mode Offline</h2>
+      {state.kind === "unsupported" ? (
+        <p className="text-sm text-muted-foreground">
+          Mode offline aktif pada versi yang sudah dipasang di internet (bukan saat <code>npm run dev</code>), lewat
+          peramban yang mendukungnya.
+        </p>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">
+            {state.kind === "ready"
+              ? `Siap dipakai tanpa internet: ${state.pages} halaman tersimpan di perangkat ini.`
+              : state.kind === "busy"
+                ? "Sedang mengunduh semua pelajaran... tunggu sebentar."
+                : "Belum tersimpan. Buka aplikasi sekali dengan internet, lalu tekan tombol di bawah."}
+          </p>
+          <Button variant="outline" disabled={state.kind === "busy"} onClick={download}>
+            {state.kind === "ready" ? "Perbarui simpanan offline" : "Simpan untuk offline"}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Tanpa internet, latihan baca keras dinilai orang tua (mikrofon butuh internet), dan suara bergantung pada
+            suara bahasa Indonesia yang terpasang di perangkat atau rekaman suara ayah/ibu.
+          </p>
+        </>
+      )}
+    </section>
   );
 }
 
