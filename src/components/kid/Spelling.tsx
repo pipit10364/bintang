@@ -126,6 +126,10 @@ function TapSyllable({
   const [r, setR] = useState(0);
   const [wrong, setWrong] = useState<string | null>(null);
   const [cool, setCool] = useState(false);
+  // Urutan kartu tetap selama anak belum menjawab. Baru diacak lagi di soal berikutnya
+  // atau setelah salah jawab (jarinya sudah lepas dari kartu).
+  const [reshuffle, setReshuffle] = useState(0);
+  const order = useMemo(() => shuffle(family), [family, r, reshuffle]); // eslint-disable-line react-hooks/exhaustive-deps
   const ready = useGateReady();
   const target = rounds[r];
 
@@ -141,6 +145,7 @@ function TapSyllable({
       setTimeout(() => {
         setWrong(null);
         setCool(false);
+        setReshuffle((n) => n + 1);
       }, WRONG_PAUSE_MS);
     }
   };
@@ -149,7 +154,7 @@ function TapSyllable({
     <div className="space-y-5">
       <TapPrompt key={r} target={target} />
       <div className="flex flex-wrap justify-center gap-3">
-        {shuffle(family).map((s) => (
+        {order.map((s) => (
           <button
             key={s}
             disabled={!ready || cool}
