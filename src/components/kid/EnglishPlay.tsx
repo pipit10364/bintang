@@ -6,6 +6,7 @@ import { ReadWordsStep, TypeWordsStep } from "./Inputs";
 import { Celebration } from "./Celebration";
 import { addStars } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { TYPE_FROM_PICTURE } from "@/lib/features";
 import { useEffect, useRef } from "react";
 
 const bigBtn =
@@ -49,7 +50,7 @@ const sayEn = (w: EnWord) => speak(w.en, { lang: "en-US" });
 export function EnglishPlay({
   words,
   pool,
-  stages,
+  stages: allStages,
   onFinish,
 }: {
   words: EnWord[];
@@ -57,6 +58,10 @@ export function EnglishPlay({
   stages: Stage[];
   onFinish: (result: { perfect: boolean; missed: string[] }) => void;
 }) {
+  const stages = useMemo(
+    () => (TYPE_FROM_PICTURE ? allStages : allStages.filter((s) => s !== "ketik")),
+    [allStages],
+  );
   const [i, setI] = useState(0);
   const [celebrate, setCelebrate] = useState<null | { perfect: boolean }>(null);
   const [stagePerfect, setStagePerfect] = useState(true);
