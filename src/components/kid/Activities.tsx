@@ -62,7 +62,9 @@ export function ConfusableStep({
   const { cool, wrong: markWrong } = useWrongPause();
   const ready = useGateReady();
   const target = rounds[r];
-  const options = useMemo(() => shuffle([...group]), [group, r]);
+  // Urutan huruf tetap selama anak belum menjawab; diacak lagi hanya setelah salah jawab.
+  const [reshuffle, setReshuffle] = useState(0);
+  const options = useMemo(() => shuffle([...group]), [group, r, reshuffle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!learned)
     return (
@@ -111,7 +113,10 @@ export function ConfusableStep({
                 markWrong(() => setPerfect(false));
                 setWrong(l);
                 speak(`Itu huruf ${l}. ${CONFUSABLE_TIPS[target].hint}`);
-                setTimeout(() => setWrong(null), 900);
+                setTimeout(() => {
+                  setWrong(null);
+                  setReshuffle((n) => n + 1);
+                }, 900);
               }
             }}
             className={cn(
