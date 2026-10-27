@@ -20,6 +20,15 @@ npm test
 2. Di Vercel: Add New, Project, pilih repo ini.
 3. Build command `npm run build`. Tidak ada environment variable yang diperlukan.
 
+## Mode offline
+
+`public/sw.js` (service worker) menyimpan semua halaman dan file aplikasi di perangkat. Aktif hanya di versi
+hasil build (bukan `npm run dev`). Cara pakai: buka aplikasi sekali dengan internet; semua pelajaran diunduh
+otomatis di latar belakang (status dan tombol "Simpan untuk offline" ada di Portal Orang Tua). Setelah itu bisa
+dibuka tanpa internet, juga dari ikon layar utama. Setelah mengubah `sw.js`, naikkan `VERSION` di dalamnya.
+Tanpa internet: baca keras dinilai orang tua (pengenalan suara Chrome butuh internet), dan suara memakai suara
+bahasa Indonesia yang terpasang di perangkat atau rekaman ayah/ibu.
+
 ## Data
 
 Tidak ada database. Nama anak, keluarga, cerita buatan sendiri, PIN, bintang, dan stiker
