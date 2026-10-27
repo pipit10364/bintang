@@ -10,6 +10,7 @@ import { SpellingStep } from "@/components/kid/Spelling";
 import { ReadWordsStep, TypeWordsStep } from "@/components/kid/Inputs";
 import { Celebration } from "@/components/kid/Celebration";
 import { cn } from "@/lib/utils";
+import { TYPE_FROM_PICTURE } from "@/lib/features";
 
 export const Route = createFileRoute("/huruf/$letter")({
   loader: ({ params }) => {
@@ -38,7 +39,7 @@ function LetterModule() {
   const index = LETTERS.findIndex((l) => l.letter === letter);
   const story = storyForLetter(index);
   const group = confusableGroupOf(letter);
-  const steps = ["story", "trace", ...(group ? ["twin"] : []), "eja", "detective", "ketik", "baca", "math", "quiz"];
+  const steps = ["story", "trace", ...(group ? ["twin"] : []), "eja", "detective", ...(TYPE_FROM_PICTURE ? ["ketik"] : []), "baca", "math", "quiz"];
   const [step, setStep] = useState(0);
   const [celebrate, setCelebrate] = useState<null | { kind: "step" | "final"; perfect: boolean }>(null);
   const { profile } = useProfile();
@@ -53,8 +54,9 @@ function LetterModule() {
     } else setCelebrate({ kind: "step", perfect });
   };
 
-  // Kata latihan ketik dan baca keras: tiga kata terpendek dengan gambar yang jelas.
-  const drill = drillWords(data.words, 3).map((w) => ({ text: w.id, emoji: w.emoji }));
+  // Kata latihan baca keras (dan ketik, kalau dinyalakan): kata pendek dengan gambar yang jelas.
+  // Membaca diberi lebih banyak kata (4) karena itu yang sedang dimantapkan.
+  const drill = drillWords(data.words, TYPE_FROM_PICTURE ? 3 : 4).map((w) => ({ text: w.id, emoji: w.emoji }));
   const cur = steps[step];
   return (
     <KidPage title={`Huruf ${letter} ${letter.toLowerCase()}`}>
