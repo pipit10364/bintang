@@ -4,6 +4,7 @@ import { SHAPES, SHAPE_OBJECTS, TYPEABLE, getShape, type ShapeId } from "@/data/
 import { Instruction, praiseThen, tryAgain, useGateReady, WRONG_PAUSE_MS } from "./Speaker";
 import { TypeAnswer } from "./Inputs";
 import { cn } from "@/lib/utils";
+import { TYPE_FROM_PICTURE } from "@/lib/features";
 
 const bigBtn =
   "rounded-3xl shadow-[0_6px_0_var(--border)] active:translate-y-1 active:shadow-none transition";
@@ -51,7 +52,9 @@ export function ShapeSvg({ id, size = 96 }: { id: ShapeId; size?: number }) {
 
 /** Langkah: kenal, cari bentuk, bentuk benda sehari hari, lalu ketik namanya. */
 export function ShapesModule({ onDone }: { onDone: (perfect: boolean) => void }) {
-  const steps = ["kenal", "cari", "benda", "ketik"] as const;
+  const steps: readonly ("kenal" | "cari" | "benda" | "ketik")[] = TYPE_FROM_PICTURE
+    ? ["kenal", "cari", "benda", "ketik"]
+    : ["kenal", "cari", "benda"];
   const [step, setStep] = useState(0);
   const [perfect, setPerfect] = useState(true);
   const cur = steps[step];
