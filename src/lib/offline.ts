@@ -18,6 +18,7 @@ export function offlineUrls(): string[] {
     "/kembar",
     "/keluarga",
     "/cerita",
+    "/gambar",
     ...LETTERS.map((l) => `/huruf/${l.letter}`),
     ...DIGITS.map((d) => `/angka/${d}`),
     ...THEMES.map((t) => `/inggris/${t.id}`),
