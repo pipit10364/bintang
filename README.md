@@ -20,6 +20,14 @@ npm test
 2. Di Vercel: Add New, Project, pilih repo ini.
 3. Build command `npm run build`. Tidak ada environment variable yang diperlukan.
 
+## Menggambar & mewarnai
+
+Halaman `/gambar`: lapisan (maks. 6), kuas, kuas gradasi, penghapus, ember cat, gradasi lurus/melingkar,
+roda warna dan palet lingkaran, urungkan/ulang, 6 gambar garis siap warnai, simpan sebagai PNG. Gambar
+tersimpan otomatis di perangkat (IndexedDB) dan jalan tanpa internet. Mesinnya ada di
+`src/lib/paint-engine.ts` (tanpa React), tampilannya di `src/components/paint/`.
+Gambar garis baru ditambah di `src/lib/paint-templates.ts`.
+
 ## Mode offline
 
 `public/sw.js` (service worker) menyimpan semua halaman dan file aplikasi di perangkat. Aktif hanya di versi
