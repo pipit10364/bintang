@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BentukRouteImport } from './routes/bentuk'
 import { Route as CeritaRouteImport } from './routes/cerita'
 import { Route as GambarRouteImport } from './routes/gambar'
+import { Route as LatihanRouteImport } from './routes/latihan'
 import { Route as InggrisRouteImport } from './routes/inggris'
 import { Route as KeluargaRouteImport } from './routes/keluarga'
 import { Route as KembarRouteImport } from './routes/kembar'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const BentukRoute = BentukRouteImport.update({
   id: '/bentuk',
   path: '/bentuk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LatihanRoute = LatihanRouteImport.update({
+  id: '/latihan',
+  path: '/latihan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GambarRoute = GambarRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/bentuk': typeof BentukRoute
   '/cerita': typeof CeritaRoute
   '/gambar': typeof GambarRoute
+  '/latihan': typeof LatihanRoute
   '/inggris': typeof InggrisRouteWithChildren
   '/keluarga': typeof KeluargaRoute
   '/kembar': typeof KembarRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/bentuk': typeof BentukRoute
   '/cerita': typeof CeritaRoute
   '/gambar': typeof GambarRoute
+  '/latihan': typeof LatihanRoute
   '/inggris': typeof InggrisRouteWithChildren
   '/keluarga': typeof KeluargaRoute
   '/kembar': typeof KembarRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/bentuk': typeof BentukRoute
   '/cerita': typeof CeritaRoute
   '/gambar': typeof GambarRoute
+  '/latihan': typeof LatihanRoute
   '/inggris': typeof InggrisRouteWithChildren
   '/keluarga': typeof KeluargaRoute
   '/kembar': typeof KembarRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/bentuk'
     | '/cerita'
     | '/gambar'
+    | '/latihan'
     | '/inggris'
     | '/keluarga'
     | '/kembar'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/bentuk'
     | '/cerita'
     | '/gambar'
+    | '/latihan'
     | '/inggris'
     | '/keluarga'
     | '/kembar'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/bentuk'
     | '/cerita'
     | '/gambar'
+    | '/latihan'
     | '/inggris'
     | '/keluarga'
     | '/kembar'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   BentukRoute: typeof BentukRoute
   CeritaRoute: typeof CeritaRoute
   GambarRoute: typeof GambarRoute
+  LatihanRoute: typeof LatihanRoute
   InggrisRoute: typeof InggrisRouteWithChildren
   KeluargaRoute: typeof KeluargaRoute
   KembarRoute: typeof KembarRoute
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/bentuk'
       fullPath: '/bentuk'
       preLoaderRoute: typeof BentukRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/latihan': {
+      id: '/latihan'
+      path: '/latihan'
+      fullPath: '/latihan'
+      preLoaderRoute: typeof LatihanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gambar': {
@@ -270,6 +290,7 @@ const rootRouteChildren: RootRouteChildren = {
   BentukRoute: BentukRoute,
   CeritaRoute: CeritaRoute,
   GambarRoute: GambarRoute,
+  LatihanRoute: LatihanRoute,
   InggrisRoute: InggrisRouteWithChildren,
   KeluargaRoute: KeluargaRoute,
   KembarRoute: KembarRoute,
