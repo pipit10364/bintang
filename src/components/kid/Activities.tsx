@@ -113,10 +113,7 @@ export function ConfusableStep({
                 markWrong(() => setPerfect(false));
                 setWrong(l);
                 speak(`Itu huruf ${l}. ${CONFUSABLE_TIPS[target].hint}`);
-                setTimeout(() => {
-                  setWrong(null);
-                  setReshuffle((n) => n + 1);
-                }, 900);
+                setTimeout(() => { setWrong(null); setReshuffle((n) => n + 1); }, 900);
               }
             }}
             className={cn(
@@ -240,10 +237,11 @@ export function DetectiveStep({ data, onDone }: { data: Letter; onDone: (perfect
 /* ---------- Berhitung ---------- */
 export function makeMathQuestion(seed?: number) {
   const plus = (seed ?? Math.random()) > 0.5;
-  const a = 1 + Math.floor(Math.random() * 5);
-  const b = 1 + Math.floor(Math.random() * (plus ? 5 : a));
+  // Pengurangan: hasil selalu minimal 1 (b lebih kecil dari a), supaya tidak ada jawaban 0.
+  const a = plus ? 1 + Math.floor(Math.random() * 5) : 2 + Math.floor(Math.random() * 5);
+  const b = plus ? 1 + Math.floor(Math.random() * 5) : 1 + Math.floor(Math.random() * (a - 1));
   const res = plus ? a + b : a - b;
-  return { a, b: plus ? b : Math.min(b, a), plus, res };
+  return { a, b, plus, res };
 }
 
 export function MathStep({ emoji, onDone }: { emoji: string; onDone: (perfect?: boolean) => void }) {
@@ -255,7 +253,7 @@ export function MathStep({ emoji, onDone }: { emoji: string; onDone: (perfect?: 
   const ready = useGateReady();
   const q = qs[i];
   const opts = useMemo(
-    () => Array.from(new Set([q.res, q.res + 1, q.res > 0 ? q.res - 1 : q.res + 2])).sort((x, y) => x - y),
+    () => Array.from(new Set([q.res, q.res + 1, q.res > 1 ? q.res - 1 : q.res + 2])).sort((x, y) => x - y),
     [q],
   );
   const text = q.plus
