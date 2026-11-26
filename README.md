@@ -20,6 +20,13 @@ npm test
 2. Di Vercel: Add New, Project, pilih repo ini.
 3. Build command `npm run build`. Tidak ada environment variable yang diperlukan.
 
+## Latihan Seru
+
+Halaman `/latihan`, terinspirasi lembar kerja: hubungkan hitungan, hubungkan suku kata dengan kata, coding gambar
+dan warna (jumlahkan nilai), warnai apel sesuai kode huruf b d p q, lingkari huruf yang sama, isi abjad yang
+hilang (besar/kecil), tabel suku kata, dan dengar-lalu-pilih suku kata. Pengurangan di soal berhitung selalu
+berhasil minimal 1 (tidak pernah 0). Logika soal ada di `src/lib/latihan.ts`.
+
 ## Menggambar & mewarnai
 
 Halaman `/gambar`: lapisan (maks. 6), kuas, kuas gradasi, penghapus, ember cat, gradasi lurus/melingkar,
