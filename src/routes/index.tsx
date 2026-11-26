@@ -300,6 +300,14 @@ function MenuContent() {
           <div className="text-3xl">🎨</div>
           <div className="mt-1 font-display text-base sm:text-lg">Menggambar & Mewarnai</div>
         </Link>
+        <Link
+          to="/latihan"
+          onClick={() => speak("Latihan seru")}
+          className="col-span-2 rounded-2xl bg-mint p-4 text-center shadow-[0_5px_0_var(--border)]"
+        >
+          <div className="text-3xl">🧩</div>
+          <div className="mt-1 font-display text-base sm:text-lg">Latihan Seru</div>
+        </Link>
       </section>
       {(profile.stickers.length > 0 || profile.numbers.length > 0) && (
         <section className="rounded-2xl bg-muted/60 p-4">
