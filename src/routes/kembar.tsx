@@ -44,7 +44,7 @@ function Twins() {
 
   const grp = CONFUSABLE_GROUPS[g];
   return (
-    <KidPage title={grp.join(" ")}>
+    <KidPage title={grp.join(" ")} onBack={() => setG(null)}>
       {phase === "play" ? (
         <ConfusableStep group={grp} onDone={(perfect = true) => { addStars(perfect ? 2 : 1); setPhase("trace"); }} />
       ) : (
