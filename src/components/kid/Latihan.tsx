@@ -5,8 +5,8 @@ import { vibrateNo, vibrateOk } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { Instruction, praiseThen, tryAgain, useGateReady, WRONG_PAUSE_MS } from "./Speaker";
 import {
-  ABC, CONSONANTS, LINE_COLORS, VOWELS, letterCodes, letterSequence, pickBlanks, shuffle, syllableQuiz,
-  type CodeQ, type Pair, type Sym,
+  ABC, LINE_COLORS, VOWELS, circleCells, letterCodes, letterSequence, pickBlanks, pickTargets, shuffle, syllableQuiz,
+  tableRows, type CircleCfg, type CodeQ, type DotQ, type Pair, type Sym,
 } from "@/lib/latihan";
 
 const bigBtn = "rounded-3xl shadow-[0_6px_0_var(--border)] active:translate-y-1 active:shadow-none transition";
@@ -137,7 +137,7 @@ export function CodeStep({ legend, questions, text, onDone }: { legend: Sym[]; q
         ))}
         <span>= ?</span>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${q.options.length}, minmax(0, 1fr))` }}>
         {q.options.map((o) => (
           <button
             key={o}
@@ -164,9 +164,9 @@ export function CodeStep({ legend, questions, text, onDone }: { legend: Sym[]; q
 }
 
 /* ---------- Warnai apel sesuai kode huruf ---------- */
-export function AppleCode({ group, onDone }: { group: readonly string[]; onDone: Done }) {
+export function AppleCode({ group, rounds, onDone }: { group: readonly string[]; rounds: number; onDone: Done }) {
   const codes = useMemo(() => letterCodes(group), [group]);
-  const seq = useMemo(() => letterSequence(group, 2), [group]);
+  const seq = useMemo(() => letterSequence(group, rounds), [group, rounds]);
   const [colored, setColored] = useState<Record<number, string>>({});
   const [pick, setPick] = useState<string | null>(null);
   const [bad, setBad] = useState<number | null>(null);
@@ -194,13 +194,13 @@ export function AppleCode({ group, onDone }: { group: readonly string[]; onDone:
   return (
     <div className="space-y-4">
       <Instruction text={`Warnai apel sesuai kode. ${desc}.`} />
-      <div className="flex justify-center gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {codes.map((c) => (
           <button
             key={c.letter}
             data-testid={`pal-${c.letter}`}
             onClick={() => setPick(c.color)}
-            className={cn(bigBtn, "flex h-20 w-20 flex-col items-center justify-center font-display text-3xl", pick === c.color && "ring-4 ring-ink")}
+            className={cn(bigBtn, "flex h-16 w-16 flex-col items-center justify-center font-display text-3xl", pick === c.color && "ring-4 ring-ink")}
             style={{ background: c.color, color: c.color === "#fdd835" ? "#333" : "#fff" }}
           >
             {c.letter}
@@ -226,31 +226,28 @@ export function AppleCode({ group, onDone }: { group: readonly string[]; onDone:
 }
 
 /* ---------- Lingkari huruf yang sama ---------- */
-export function CircleSame({ group, onDone }: { group: readonly string[]; onDone: Done }) {
-  const [rounds] = useState(() => shuffle([...group]).slice(0, 3));
+export function CircleSame({ cfg, onDone }: { cfg: CircleCfg; onDone: Done }) {
+  const targets = useMemo(() => pickTargets(cfg.pool, cfg.rounds), [cfg]);
   const [r, setR] = useState(0);
-  const target = rounds[r];
-  const cells = useMemo(() => {
-    const all = Array.from({ length: 12 }, (_, i) => (i < 4 ? target : group.filter((g) => g !== target)[i % (group.length - 1)]));
-    return shuffle(all);
-  }, [target, group]);
+  const target = targets[r];
+  const cells = useMemo(() => circleCells(cfg.pool, target, cfg.cells, cfg.hits), [cfg, target, r]); // eslint-disable-line react-hooks/exhaustive-deps
   const [hit, setHit] = useState<Set<number>>(new Set());
   const [bad, setBad] = useState<number | null>(null);
   const [perfect, setPerfect] = useState(true);
   const ready = useGateReady();
   const { cool, wrong } = useWrong();
-  const need = cells.filter((c) => c === target).length;
+  const need = cfg.hits;
   return (
     <div className="space-y-4">
       <Instruction key={r} text={`Lingkari semua huruf ${target}.`} />
       <div className="flex items-center justify-center gap-3">
         <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-butter font-display text-6xl">{target}</div>
-        <span className="text-sm text-muted-foreground">{hit.size} dari {need}</span>
+        <span className="text-sm text-muted-foreground">{hit.size} dari {need} · putaran {r + 1}/{targets.length}</span>
       </div>
-      <div className="grid grid-cols-4 gap-3">
+      <div className={cn("grid gap-3", cfg.cells > 16 ? "grid-cols-5" : "grid-cols-4")}>
         {cells.map((c, k) => (
           <button
-            key={k + target}
+            key={`${r}-${k}`}
             data-testid={`cell-${k}`}
             disabled={!ready || cool || hit.has(k)}
             onClick={() => {
@@ -260,7 +257,7 @@ export function CircleSame({ group, onDone }: { group: readonly string[]; onDone
                 setHit(nh);
                 if (nh.size === need)
                   praiseThen(() => {
-                    if (r + 1 < rounds.length) { setR(r + 1); setHit(new Set()); } else onDone(perfect);
+                    if (r + 1 < targets.length) { setR(r + 1); setHit(new Set()); } else onDone(perfect);
                   });
               } else {
                 wrong(() => setPerfect(false));
@@ -279,8 +276,8 @@ export function CircleSame({ group, onDone }: { group: readonly string[]; onDone
 }
 
 /* ---------- Isi huruf abjad yang hilang ---------- */
-export function AlphabetFill({ upper, onDone }: { upper: boolean; onDone: Done }) {
-  const blanks = useMemo(() => pickBlanks(8), []);
+export function AlphabetFill({ upper, blanks: n, onDone }: { upper: boolean; blanks: number; onDone: Done }) {
+  const blanks = useMemo(() => pickBlanks(n), [n]);
   const tray = useMemo(() => shuffle(blanks), [blanks]);
   const [filled, setFilled] = useState<Record<number, true>>({});
   const [sel, setSel] = useState<number | null>(null);
@@ -329,7 +326,7 @@ export function AlphabetFill({ upper, onDone }: { upper: boolean; onDone: Done }
             key={i}
             data-testid={`tray-${ABC[i]}`}
             onClick={() => { setSel(i); speak(ABC[i]); }}
-            className={cn(bigBtn, "h-16 w-16 bg-card font-display text-4xl", sel === i && "ring-4 ring-ink")}
+            className={cn(bigBtn, "h-14 w-14 bg-card font-display text-3xl", sel === i && "ring-4 ring-ink")}
           >
             {show(i)}
           </button>
@@ -340,13 +337,14 @@ export function AlphabetFill({ upper, onDone }: { upper: boolean; onDone: Done }
 }
 
 /* ---------- Tabel suku kata ---------- */
-export function SyllableTable({ onDone }: { onDone: Done }) {
+export function SyllableTable({ level, onDone }: { level: number; onDone: Done }) {
+  const rows = tableRows(level);
   const [heard, setHeard] = useState<Set<string>>(new Set());
   const [last, setLast] = useState<string | null>(null);
-  const need = 8;
+  const need = rows.length * VOWELS.length;
   return (
     <div className="space-y-4">
-      <Instruction text="Ini tabel suku kata. Ketuk kotaknya untuk mendengar bunyinya." />
+      <Instruction text="Ini tabel suku kata. Ketuk semua kotak untuk mendengar bunyinya." />
       <div className="overflow-x-auto rounded-3xl bg-card p-2 shadow-sm">
         <table className="mx-auto border-separate border-spacing-1 text-center">
           <thead>
@@ -358,7 +356,7 @@ export function SyllableTable({ onDone }: { onDone: Done }) {
             </tr>
           </thead>
           <tbody>
-            {CONSONANTS.map((c) => (
+            {rows.map((c) => (
               <tr key={c}>
                 <th className="font-display text-2xl text-primary">{c}</th>
                 {VOWELS.map((v) => {
@@ -386,15 +384,15 @@ export function SyllableTable({ onDone }: { onDone: Done }) {
         onClick={() => onDone(true)}
         className={cn(bigBtn, "w-full bg-success py-4 font-display text-2xl text-white disabled:opacity-40")}
       >
-        {heard.size < need ? `Dengarkan ${need - heard.size} lagi` : "Selesai ✓"}
+        {heard.size < need ? `Dengarkan ${need - heard.size} kotak lagi` : "Selesai ✓"}
       </button>
     </div>
   );
 }
 
 /* ---------- Dengar suku kata, pilih tulisannya ---------- */
-export function SyllableListen({ onDone }: { onDone: Done }) {
-  const qs = useMemo(() => syllableQuiz(6), []);
+export function SyllableListen({ level, onDone }: { level: number; onDone: Done }) {
+  const qs = useMemo(() => syllableQuiz(level), [level]);
   const [i, setI] = useState(0);
   const [reshuffle, setReshuffle] = useState(0);
   const q = qs[i];
@@ -431,6 +429,164 @@ export function SyllableListen({ onDone }: { onDone: Done }) {
         ))}
       </div>
       <p className="text-center text-sm text-muted-foreground">Soal {i + 1} dari {qs.length}</p>
+    </div>
+  );
+}
+
+/* ---------- Isi titik suku kata ---------- */
+function DotBox({ ch, hint }: { ch?: string; hint?: boolean }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex h-24 w-20 items-center justify-center rounded-2xl border-4 font-display text-6xl",
+        ch ? "border-success bg-success/20 text-success" : "border-dashed border-ink/50 bg-butter/50",
+        hint && !ch && "animate-pulse",
+      )}
+    >
+      {ch ?? ""}
+    </span>
+  );
+}
+
+export function FillDots({ qs, onDone }: { qs: DotQ[]; onDone: Done }) {
+  const [i, setI] = useState(0);
+  const [stage, setStage] = useState(0);
+  const [first, setFirst] = useState<string | null>(null);
+  const [filled, setFilled] = useState(false);
+  const [bad, setBad] = useState<string | null>(null);
+  const [perfect, setPerfect] = useState(true);
+  const [reshuffle, setReshuffle] = useState(0);
+  const ready = useGateReady();
+  const { cool, wrong } = useWrong();
+  const q = qs[i];
+  const pool = stage === 0 ? q.options : (q.options2 ?? q.options);
+  // Pilihan tetap selama belum dijawab; diacak lagi hanya setelah salah.
+  const opts = useMemo(() => shuffle(pool), [pool, reshuffle]); // eslint-disable-line react-hooks/exhaustive-deps
+  const want = q.kind === "v" ? q.target[1] : q.kind === "c" ? q.target[0] : stage === 0 ? q.target[0] : q.target[1];
+
+  const next = () => {
+    setStage(0);
+    setFirst(null);
+    setFilled(false);
+    if (i + 1 < qs.length) setI(i + 1);
+    else onDone(perfect);
+  };
+  const pick = (o: string) => {
+    if (o === want) {
+      vibrateOk();
+      if (q.kind === "both" && stage === 0) {
+        setFirst(o);
+        setStage(1);
+        speak(o);
+        return;
+      }
+      setFilled(true);
+      speakSyllable(q.target, 1, { onEnd: () => praiseThen(next) });
+    } else {
+      wrong(() => setPerfect(false));
+      setBad(o);
+      speak(`${q.kind === "c" ? o + q.target[1] : q.kind === "v" ? q.target[0] + o : stage === 0 ? o : (first ?? "") + o}`);
+      setTimeout(() => { setBad(null); setReshuffle((n) => n + 1); }, 900);
+    }
+  };
+
+  const c = q.target[0];
+  const v = q.target[1];
+  const left =
+    q.kind === "v" ? <span className="font-display text-7xl">{c}</span> : <DotBox ch={q.kind === "c" ? (filled ? c : undefined) : first ?? undefined} hint={q.kind === "c" || stage === 0} />;
+  const right =
+    q.kind === "c" ? <span className="font-display text-7xl">{v}</span> : <DotBox ch={filled ? v : undefined} hint={q.kind === "v" || stage === 1} />;
+  const what = q.kind === "v" ? "huruf vokal" : q.kind === "c" ? "huruf konsonan" : stage === 0 ? "huruf pertama" : "huruf kedua";
+
+  return (
+    <div className="space-y-4">
+      <Instruction key={i} text={i === 0 ? "Tekan speaker, dengarkan bunyinya, lalu isi titik-titiknya." : "Dengarkan, lalu isi titik-titiknya."} />
+      <div className="flex items-center justify-center gap-3 rounded-3xl bg-card p-4 shadow-sm">
+        {left}
+        {right}
+        <button onClick={() => speakSyllable(q.target, 1)} aria-label="Dengar bunyinya" data-testid="hear"
+          className={cn(bigBtn, "ml-2 flex h-20 w-20 items-center justify-center bg-butter text-4xl")}>🔊</button>
+      </div>
+      <p className="text-center text-sm text-muted-foreground">Pilih {what}</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        {opts.map((o) => (
+          <button
+            key={o}
+            data-testid={`pick-${o}`}
+            disabled={!ready || cool || filled}
+            onClick={() => pick(o)}
+            className={cn(bigBtn, "h-20 w-20 font-display text-5xl", bad === o ? "animate-wiggle bg-rose" : "bg-sky")}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+      <p className="text-center text-sm text-muted-foreground">Soal {i + 1} dari {qs.length}</p>
+    </div>
+  );
+}
+
+/** Pohon suku kata: satu konsonan dengan lima vokal. Ketuk baris untuk mendengar, lalu pilih vokalnya. */
+export function SyllableTree({ qs, onDone }: { qs: DotQ[]; onDone: Done }) {
+  const [i, setI] = useState(0);
+  const q = qs[i];
+  const rows = useMemo(() => shuffle(VOWELS), [i]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [sel, setSel] = useState<string | null>(null);
+  const [filled, setFilled] = useState<string[]>([]);
+  const [bad, setBad] = useState<string | null>(null);
+  const [perfect, setPerfect] = useState(true);
+  const ready = useGateReady();
+  const { cool, wrong } = useWrong();
+  const c = q.target;
+
+  const pickVowel = (x: string) => {
+    if (cool) return;
+    if (!sel) { speak("Ketuk barisnya dulu untuk mendengar bunyinya."); return; }
+    if (x === sel) {
+      vibrateOk();
+      const nf = [...filled, x];
+      setFilled(nf);
+      setSel(null);
+      if (nf.length === VOWELS.length)
+        setTimeout(() => praiseThen(() => {
+          setFilled([]);
+          if (i + 1 < qs.length) setI(i + 1); else onDone(perfect);
+        }), 500);
+    } else {
+      wrong(() => setPerfect(false));
+      setBad(x);
+      setTimeout(() => setBad(null), 900);
+    }
+  };
+  return (
+    <div className="space-y-4">
+      <Instruction key={i} text={`Pohon suku kata huruf ${c}. Ketuk satu baris, dengarkan, lalu pilih huruf vokalnya.`} />
+      <div className="flex items-center justify-center gap-4">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-mint font-display text-6xl shadow-[0_6px_0_var(--border)]">{c}</div>
+        <div className="space-y-2">
+          {rows.map((x) => {
+            const done = filled.includes(x);
+            return (
+              <button
+                key={x}
+                data-testid={`row-${x}`}
+                disabled={done}
+                onClick={() => { setSel(x); speakSyllable(c + x, 1); }}
+                className={cn("flex h-14 w-44 items-center justify-center gap-2 rounded-2xl font-display text-3xl shadow-[0_4px_0_var(--border)]", done ? "bg-success text-white" : sel === x ? "bg-butter ring-4 ring-ink" : "bg-card")}
+              >
+                {done ? c + x : <>🔊 {c}<span className="inline-block h-9 w-10 rounded-lg border-2 border-dashed border-ink/50" /></>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3 rounded-3xl bg-lilac p-3">
+        {VOWELS.filter((x) => !filled.includes(x)).map((x) => (
+          <button key={x} data-testid={`vow-${x}`} disabled={!ready} onClick={() => pickVowel(x)}
+            className={cn(bigBtn, "h-16 w-16 font-display text-4xl", bad === x ? "animate-wiggle bg-rose" : "bg-card")}>{x}</button>
+        ))}
+      </div>
+      <p className="text-center text-sm text-muted-foreground">Pohon {i + 1} dari {qs.length}</p>
     </div>
   );
 }
