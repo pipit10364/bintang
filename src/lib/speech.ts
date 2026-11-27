@@ -87,7 +87,18 @@ function respellForEnglishVoice(word: string) {
 /** Kata Indonesia yang bentuknya sama dengan kata Inggris, dibaca keliru walau suara Indonesia ada. */
 const ID_VOICE_FIX: Record<string, string> = { hi: "hii" };
 
-function ttsText(text: string, lang: string, hasVoice: boolean) {
+/**
+ * Suku kata konsonan + e/o ("me", "to", "be", "no") sering dibaca dengan logat Inggris
+ * ("mi", "tu"). Tambahan "h" memaksa bunyi Indonesia: "meh", "toh".
+ */
+export function fixIdSyllable(w: string) {
+  const l = w.toLowerCase();
+  if (ID_VOICE_FIX[l]) return ID_VOICE_FIX[l];
+  if (/^(ny|ng|sy|kh|[bcdfghjklmnprstvwyz])[eo]$/.test(l)) return `${l}h`;
+  return w;
+}
+
+export function ttsText(text: string, lang: string, hasVoice: boolean) {
   if (baseOf(lang) !== "id") return text;
   // Satu kata atau suku kata yang diulang ("ca, ca, ca") dieja ulang per kata.
   const tokens = text.split(/[\s,.!]+/).filter(Boolean);
@@ -95,7 +106,7 @@ function ttsText(text: string, lang: string, hasVoice: boolean) {
     tokens.length > 0 &&
     tokens.every((t) => /^[A-Za-z]+$/.test(t) && t.toLowerCase() === tokens[0].toLowerCase());
   if (!same) return text;
-  const one = hasVoice ? (ID_VOICE_FIX[tokens[0].toLowerCase()] ?? tokens[0]) : respellForEnglishVoice(tokens[0]);
+  const one = hasVoice ? fixIdSyllable(tokens[0]) : respellForEnglishVoice(tokens[0]);
   return Array(tokens.length).fill(one).join(", ");
 }
 
